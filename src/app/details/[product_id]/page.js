@@ -23,7 +23,6 @@ const Page = ({params}) => {
 
     const [productData, setProductData] = useState({})
     const [prodImages , setProdImage] = useState([])
-    console.log(productData)
 
     useEffect(() => {
         let unmounted = false;

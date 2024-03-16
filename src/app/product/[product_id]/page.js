@@ -3,7 +3,7 @@ import Navbar from "@/app/components/Navbar";
 import { Box, Breadcrumbs, LinearProgress, Pagination, Rating } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import {
     AiFillHeart,
@@ -13,8 +13,14 @@ import {
     AiOutlineStar,
 } from "react-icons/ai";
 import Footer from "@/app/components/Footer";
+import axios from "../../../../axios";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/swiper-bundle.css';
 
-const Page = () => {
+const Page = ({ params }) => {
+    const decodedProductId = decodeURIComponent(params.product_id);
+    console.log(decodedProductId)
+
     const products = [
         {
             id: 1,
@@ -42,9 +48,40 @@ const Page = () => {
         },
     ];
 
+    const [productData, setProductData] = useState([])
+    useEffect(() => {
+        let unmounted = false;
+        if (!unmounted) {
+            fetchProductData()
+        }
+
+        return () => { unmounted = true };
+    }, [])
+
+    const fetchProductData = useCallback(
+        () => {
+            axios.get(`/api/get-products-customer?${decodedProductId}`)
+                .then((res) => {
+                    if (res.data.code == 200) {
+                        setProductData(res.data.products)
+                    } else if (res.data.message === 'Session expired') {
+                        openSnackbar(res.data.message, 'error');
+                        // router.push('/login')
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                    if (err.response && err.response.data.statusCode === 400) {
+                        openSnackbar(err.response.data.message, 'error');
+                    }
+                })
+        },
+        [],
+    )
+
     const [page, setPage] = useState(1);
     const rowsPerPage = 10;
-    const totalRows = products.length;
+    const totalRows = productData.length;
     const totalPages = Math.ceil(totalRows / rowsPerPage);
 
     const handleChangePage = (event, newPage) => {
@@ -53,13 +90,23 @@ const Page = () => {
 
     const [searchQuery, setSearchQuery] = useState("");
 
-    const filteredRows = products.filter((e) =>
-        e.name.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredRows = productData.filter((e) =>
+        e.product_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const startIndex = (page - 1) * rowsPerPage;
     const endIndex = Math.min(startIndex + rowsPerPage, filteredRows.length);
     const paginatedRows = filteredRows.slice(startIndex, endIndex);
+
+
+    const convertInRupee = (number) => {
+        return number.toLocaleString('en-IN', {
+          style: 'currency',
+          currency: 'INR',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
 
     return (
         <>
@@ -84,44 +131,79 @@ const Page = () => {
             <div className="container mx-auto">
                 <div className="py-[50px]">
                     <ul className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
+                    {paginatedRows.length > 0 ?
+                    <>
                         {paginatedRows.map((product, index) => (
                             <li key={index} className="p-[10px] bg-[#FAF6F6] z-[0]">
                                 <div className="nc-ProductCard relative flex flex-col bg-transparent ">
                                     <div className="relative flex-shrink-0 bg-slate-50 h-[180px] lg:h-[250px] rounded-3xl overflow-hidden z-0 group">
-                                        <div className=" aspect-w-11 aspect-h-12 w-full h-0">
-                                            <Link href="https://kardify1.b2cinfohosting.in/uploads/products/IA-AF-IN-022_1.jpg" className="block">
-                                                <Image
-                                                    src="https://kardify1.b2cinfohosting.in/uploads/products/IA-AF-IN-023_1.jpg"
-                                                    alt="subham jena"
-                                                    width={300}
-                                                    height={300}
-                                                    className="object-cover w-full !h-[80%] drop-shadow-xl"
-                                                />
-                                            </Link>
-                                        </div>
+                                        <Swiper
+                                            key={index}
+                                            spaceBetween={50}
+                                            slidesPerView={1}
+                                            navigation={false}
+                                            pagination={{ clickable: true }}
+                                            loop={true}
+                                            className="h-full"
+                                        >
+                                            {product.images.map((image, imageIndex) => (
+                                                <SwiperSlide key={imageIndex}>
+
+                                                    <div className="aspect-w-11 aspect-h-12 w-full h-full">
+                                                        <Link href={`/details/${image.product_id}`}>
+                                                            <Image
+                                                                src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${image.image_url}`}
+                                                                alt={image.id}
+                                                                width={300}
+                                                                height={300}
+                                                                className="object-cover w-full h-full drop-shadow-xl"
+                                                            />
+                                                        </Link>
+                                                    </div>
+                                                </SwiperSlide>
+                                            ))}
+                                        </Swiper>
                                         <button className="w-9 h-9 flex items-center justify-center rounded-full bg-white  text-neutral-700  nc-shadow-lg absolute top-3 left-3 z-10">
                                             <p className="w-5 h-5">
                                                 <AiFillHeart />
                                             </p>
                                         </button>
-                                        <span className="w-9 h-9 flex items-center justify-center rounded-full bg-[#E3BB54]  text-neutral-700  nc-shadow-lg absolute top-3 right-3 z-10">
-                                            <p className="w-5 h-5 text-[12px]">{product.discount}%</p>
+
+                                        <span className="w-[50px] h-[50px] flex items-center justify-center rounded-full bg-[#E3BB54]  text-neutral-700  nc-shadow-lg absolute top-3 right-3 z-10">
+                                            {product.discount_type === "amount" ? (
+                                                <p className="w-[40px] text-[12px] font-[600]">₹{(product.discount)} <span className="text-[10px] font-[500] text-[#404040]">off</span></p>
+                                            ) : (
+                                                <p className="w-[40px] text-[12px] font-[600]">{product.discount}% <span className="text-[10px] font-[500] text-[#404040]">off</span></p>
+                                            )}
                                         </span>
                                     </div>
                                     <div className="space-y-4 px-2.5 pt-5 pb-2.5">
                                         <div className="text-center">
-                                            <Link href="#" className='font-[500] text-[16px] text-center'>{product.name}</Link>
+                                            <Link href="#" className='font-[500] text-[16px] text-center'>{product.product_name}</Link>
                                         </div>
                                         <div className="flex justify-center">
                                             <Rating name="read-only" value={product.rating} readOnly />
                                         </div>
                                         <div className="flex justify-center items-baseline gap-1">
-                                            <span className="text-black font-[500] text-[20px]">
-                                                ₹400
-                                            </span>
-                                            <span className="text-[#bbb8b8] font-[500] text-[13px] line-through">
-                                                ₹600
-                                            </span>
+                                            {product.discount_type === "amount" ? (
+                                                <>
+                                                    <span className="text-black font-[500] text-[20px]">
+                                                        {convertInRupee(product.default_price - product.discount)}
+                                                    </span>
+                                                    <span className="text-[#bbb8b8] font-[500] text-[13px] line-through">
+                                                        {convertInRupee(product.default_price)}
+                                                    </span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <span className="text-black font-[500] text-[20px]">
+                                                        {convertInRupee(product.default_price * (1 - product.discount / 100))}
+                                                    </span>
+                                                    <span className="text-[#bbb8b8] font-[500] text-[13px] line-through">
+                                                        {convertInRupee(product.default_price)}
+                                                    </span>
+                                                </>
+                                            )}
                                         </div>
                                         <div className="flex items-center space-x-2 justify-center bg-black hover:opacity-80 cursor-pointer py-[12px] px-[15px] text-white rounded-full">
                                             <FaShoppingCart />
@@ -133,15 +215,14 @@ const Page = () => {
                                 </div>
                             </li>
                         ))}
+                        </>
+                        : <p>No Products Found</p>}
                     </ul>
-                    <div className='flex justify-left mt-3'>
-                        <Pagination
-                            count={totalPages}
-                            page={page}
-                            onChange={handleChangePage}
-                            shape="rounded"
-                        />
-                    </div>
+                    {totalPages > 1 && (
+                            <div className="flex justify-left mt-3">
+                                <Pagination count={totalPages} page={page} onChange={handleChangePage} shape="rounded" />
+                            </div>
+                        )}
                 </div>
             </div>
 

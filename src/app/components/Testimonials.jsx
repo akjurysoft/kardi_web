@@ -1,35 +1,70 @@
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import SwiperCore, { Navigation, Pagination } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/swiper-bundle.css';
 import { FaQuoteLeft } from "react-icons/fa";
+import axios from '../../../axios';
+import { useSnackbar } from '../SnackbarProvider';
+import { Rating } from '@mui/material';
 
 SwiperCore.use([Navigation, Pagination]);
 
 const Testimonials = () => {
+    const { openSnackbar } = useSnackbar();
+
+
+    const [testimonialData, setTestimonialData] = useState([])
+    const [expandedIndex, setExpandedIndex] = useState(null);
+    useEffect(() => {
+        let unmounted = false;
+        if (!unmounted) {
+            fetchStoryData()
+        }
+
+        return () => { unmounted = true };
+    }, [])
+
+    const fetchStoryData = useCallback(
+        () => {
+            axios.get(`/api/fetch-all-testimonials-customers`)
+                .then((res) => {
+                    if (res.data.code == 200) {
+                        setTestimonialData(res.data.testimonials)
+                    } else if (res.data.message === 'Session expired') {
+                        openSnackbar(res.data.message, 'error');
+                        // router.push('/login')
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                    if (err.response && err.response.data.statusCode === 400) {
+                        openSnackbar(err.response.data.message, 'error');
+                    }
+                })
+        },
+        [],
+    )
 
     useEffect(() => {
-        // Initialize Swiper when component mounts
         const swiper = new SwiperCore('.swiper-container', {
-            slidesPerView: 1, // Number of slides per view
-            spaceBetween: 10, // Space between slides (in pixels)
+            slidesPerView: 1,
+            spaceBetween: 10,
             loop: false,
             autoplay: {
-                delay: 6000, // Delay between slides in milliseconds
-                disableOnInteraction: true, // Enable autoplay even when user interacts with the carousel
+                delay: 6000,
+                disableOnInteraction: true,
             },
             breakpoints: {
-                // Define breakpoints for different screen sizes
                 640: {
-                    slidesPerView: 2, // Show 2 slides per view on screens with width 640px or less
+                    slidesPerView: 2,
                 },
                 768: {
-                    slidesPerView: 2, // Show 3 slides per view on screens with width 768px or less
+                    slidesPerView: 2,
                 },
                 1024: {
-                    slidesPerView: 3, // Show 4 slides per view on screens with width 1024px or less
+                    slidesPerView: 3,
                 },
             },
         });
@@ -103,53 +138,62 @@ const Testimonials = () => {
             </section> */}
 
             <section className="py-[60px]">
-            <div className="container mx-auto">
-                <div className="title text-center">
-                    <h3>Testimonials</h3>
-                </div>
-                <Swiper
-                    slidesPerView={1}
-                    spaceBetween={10}
-                    navigation={false}
-                    pagination={{ clickable: true }}
-                    breakpoints={{
-                        640: {
-                            slidesPerView: 2,
-                        },
-                        768: {
-                            slidesPerView: 2,
-                        },
-                        1024: {
-                            slidesPerView: 3,
-                        },
-                    }}
-                >
-                    <SwiperSlide>
-                        <div className="item">
-                            <div className="single-testimonial-item">
-                                <div className="testimonial-dec">
-                                <FaQuoteLeft />
-                                    <p className='text-[#605e5e] text-[13px] font-[500] '>
-                                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-                                    </p>
-                                </div>
-                                <div className="media flex items-center space-x-2">
-                                    <div className="media-left">
-                                        <div className="user-img "><img src="https://kardify1.b2cinfohosting.in/uploads/testimonial/banner/download%20(8).jpg" className='h-[50px] w-[50px] rounded-full'/></div>
-                                    </div>
-                                    <div className="media-body">
-                                        <div className="user-name">
-                                            <h4 className='text-[14px] text-black'>Subham</h4>
-                                            <h5 className='text-[12px] text-[#5a5a5a]'>Jena</h5>
+                <div className="container mx-auto">
+                    <div className="title text-center">
+                        <h3>Testimonials</h3>
+                    </div>
+                    <Swiper
+                        slidesPerView={1}
+                        spaceBetween={10}
+                        navigation={false}
+                        pagination={{ clickable: true }}
+                        breakpoints={{
+                            640: {
+                                slidesPerView: 2,
+                            },
+                            768: {
+                                slidesPerView: 2,
+                            },
+                            1024: {
+                                slidesPerView: 3,
+                            },
+                        }}
+                    >
+                        {testimonialData && testimonialData.map((item, index) =>
+                            <SwiperSlide key={index}>
+                                <div className="item">
+                                    <div className="single-testimonial-item">
+                                        <div className="testimonial-dec overflow-scroll">
+                                            <FaQuoteLeft />
+                                            <p className='text-[#605e5e] text-[13px] font-[500] '>
+                                                {item.description.length > 330 && expandedIndex !== index
+                                                    ? `${item.description.slice(0, 330)}...`
+                                                    : item.description}
+                                            </p>
+                                            {item.description.length > 200 && (
+                                                <button
+                                                    onClick={() =>
+                                                        setExpandedIndex(expandedIndex === index ? null : index)
+                                                    }
+                                                    className="text-[13px] text-[#faaf00] font-[600] hover:opacity-80"
+                                                >
+                                                    {expandedIndex === index ? 'Read Less' : 'Read More'}
+                                                </button>
+                                            )}
+                                        </div>
+                                        <div className="media flex flex-col items-left space-x-2">
+                                            <div className="media-left">
+                                                <Rating readOnly value={item.rating} />
+                                                <h4 className='text-[14px] text-black capitalize'>{item.customer.fullname}</h4>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </SwiperSlide>
-                </Swiper>
-            </div>
-        </section>
+                            </SwiperSlide>
+                        )}
+                    </Swiper>
+                </div>
+            </section>
         </>
     )
 }

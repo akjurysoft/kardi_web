@@ -1,11 +1,12 @@
 'use client'
 import Link from 'next/link'
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import SwiperCore, { Navigation, Pagination } from 'swiper';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/swiper-bundle.css';
+import axios from '../../../axios';
 
 SwiperCore.use([Navigation, Pagination]);
 const Stories = () => {
@@ -47,6 +48,37 @@ const Stories = () => {
         },
     ];
 
+    const [storyData, setStoryData] = useState([])
+    useEffect(() => {
+        let unmounted = false;
+        if (!unmounted) {
+            fetchStoryData()
+        }
+
+        return () => { unmounted = true };
+    }, [])
+
+    const fetchStoryData = useCallback(
+        () => {
+            axios.get(`/api/fetch-all-stories-customer`)
+                .then((res) => {
+                    if (res.data.code == 200) {
+                        setStoryData(res.data.allStories)
+                    } else if (res.data.message === 'Session expired') {
+                        openSnackbar(res.data.message, 'error');
+                        // router.push('/login')
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                    if (err.response && err.response.data.statusCode === 400) {
+                        openSnackbar(err.response.data.message, 'error');
+                    }
+                })
+        },
+        [],
+    )
+
 
     useEffect(() => {
         // Initialize Swiper when component mounts
@@ -86,15 +118,21 @@ const Stories = () => {
 
                     <div className="swiper-container py-[80px]">
                         <div className="swiper-wrapper">
-                            {stories.map((story, index) => (
+                            {storyData.map((story, index) => (
                                 <SwiperSlide key={index}>
                                     <div className="item">
                                         <div className="item-box">
+                                        {story.story_type === 'image' ? (
                                             <div className="thumbnail tmb">
-                                                <img src={story.story_img} title={story.story_heading} alt={story.story_heading} />
+                                                <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${story.image_url}`} title={story.story_heading} alt={story.story_heading} />
                                             </div>
+                                        ):(
+                                            <div className="thumbnail tmb">
+                                                <video src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${story.image_url}`} title={story.story_heading} className='w-full h-full'></video>
+                                            </div>
+                                        )}
                                             <div className="item-box-dec">
-                                                <div dangerouslySetInnerHTML={{ __html: story.story_description }} className="homeStoryDescription"></div>
+                                                <div  className="homeStoryDescription text-[14px]">{story.description.slice(0, 50)}...</div>
                                                 <Link href="#" className='btn-link'>Read More</Link>
                                                 {/* {story.upload_type === 1 && (
                                                     <a className="btn btn-link" href={`./stories/customer_story/${story.id}/${story.story_heading}`}>

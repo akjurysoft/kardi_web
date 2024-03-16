@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import Navbar1 from '../components/Navbar'
 import { Breadcrumbs, Pagination, Rating } from '@mui/material'
 import Link from 'next/link'
@@ -13,7 +13,7 @@ import axios from '../../../axios'
 const Page = () => {
     const { openSnackbar } = useSnackbar();
 
-    const [storyData , setStoryData] = useState([])
+    const [storyData, setStoryData] = useState([])
     useEffect(() => {
         let unmounted = false;
         if (!unmounted) {
@@ -62,6 +62,36 @@ const Page = () => {
     const startIndex = (page - 1) * rowsPerPage;
     const endIndex = Math.min(startIndex + rowsPerPage, filteredRows.length);
     const paginatedRows = filteredRows.slice(startIndex, endIndex);
+
+
+    const videoRefs = useRef([]);
+    const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
+    const handlePlay = (index) => {
+        const video = videoRefs.current[index];
+        if (video) {
+            if (currentlyPlaying === index) {
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+            } else {
+                if (currentlyPlaying !== null) {
+                    videoRefs.current[currentlyPlaying].pause();
+                }
+                setCurrentlyPlaying(index); 
+                video.play();
+            }
+        }
+    };
+
+    const pauseAllVideos = () => {
+        videoRefs.current.forEach((video, index) => {
+            if (index !== currentlyPlaying && video) {
+                video.pause();
+            }
+        });
+    };
     return (
         <>
             <Navbar1 />
@@ -87,9 +117,9 @@ const Page = () => {
                     <h4 className='text-[40px] font-[300]'>Stories</h4>
                     <p className='text-[#4f4e4e] mb-[15px] text-[14px]'>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised. Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
                     <div className='flex justify-center'>
-                    <Link href='/stories/upload'>
-                        <span className='px-[30px] py-[9px] rounded-[30px] bg-[#222] border-[#222] text-[#fff] cursor-pointer text-[14px] hover:opacity-80'>Upload your story</span>
-                    </Link>
+                        <Link href='/stories/upload'>
+                            <span className='px-[30px] py-[9px] rounded-[30px] bg-[#222] border-[#222] text-[#fff] cursor-pointer text-[14px] hover:opacity-80'>Upload your story</span>
+                        </Link>
                     </div>
                 </div>
 
@@ -102,22 +132,41 @@ const Page = () => {
                                 <li key={index} className="p-[10px] bg-[#FAF6F6] z-[0]">
                                     <div className="nc-ProductCard relative flex flex-col bg-transparent ">
                                         <div className="relative flex-shrink-0 bg-slate-50 h-[180px] lg:h-[250px] rounded-3xl overflow-hidden z-0 group">
-                                            <div className=" aspect-w-11 aspect-h-12 w-full">
-                                                <Image
-                                                    src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${story.image_url}`}
-                                                    alt="subham jena"
-                                                    width={300}
-                                                    height={300}
-                                                    className="object-cover w-full h-full drop-shadow-xl"
-                                                />
-                                            </div>
+                                            {story.story_type === 'image' ? (
+                                                <div className="aspect-w-11 aspect-h-12 w-full h-full">
+                                                    <Image
+                                                        src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${story.image_url}`}
+                                                        alt={story.name}
+                                                        width={300}
+                                                        height={300}
+                                                        className="object-cover w-full h-full drop-shadow-xl"
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className="aspect-w-11 aspect-h-12 w-full h-full relative">
+                                                    <video
+                                                        src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${story.image_url}`}
+                                                        alt="subham jena"
+                                                        width={300}
+                                                        height={300}
+                                                        className="object-cover w-full h-full drop-shadow-xl"
+                                                        controls={false}
+                                                        ref={(el) => videoRefs.current[index] = el}
+                                                    />
+                                                   <div className="video-controls absolute top-0 left-0 w-full h-full bg-black opacity-0 transition-opacity duration-300 hover:opacity-100 flex justify-center items-center">
+                                                        <button className="text-white" onClick={() => handlePlay(index)}>
+                                                            {currentlyPlaying === index ? 'Pause' : 'Play'}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="flex flex-col justify-between px-2.5 pt-5 pb-2.5">
                                             <div >
                                                 <Link href="#" className='font-[500] text-[16px] text-left'>{story.heading}</Link>
                                             </div>
                                             <div className="flex justify-left">
-                                                <p className='text-[#4f4e4e] text-[14px]'>{story.description.slice(0,25)}...</p>
+                                                <p className='text-[#4f4e4e] text-[14px]'>{story.description.slice(0, 25)}...</p>
                                             </div>
                                             <span className='text-[14px] text-[#000] py-2 cursor-pointer hover:text-[#E3BB54]'>View more</span>
                                         </div>
@@ -136,7 +185,7 @@ const Page = () => {
 
 
 
-            <Footer/>
+            <Footer />
         </>
     )
 }
