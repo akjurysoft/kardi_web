@@ -17,7 +17,6 @@ import { useRouter } from 'next/navigation';
 
 const Page = ({params}) => {
 
-    console.log(params)
 
     const router = useRouter()
 
@@ -35,7 +34,7 @@ const Page = ({params}) => {
 
     const fetchbankData = useCallback(
         () => {
-            axios.get(`/api/get-products-customer?product_name=${params.product_id}`)
+            axios.get(`/api/get-products-customer?product_id=${params.product_id}`)
                 .then((res) => {
                     const fetchedProdData = res.data.products[0]
                     if (res.data.code == 200) {
@@ -61,23 +60,6 @@ const Page = ({params}) => {
         },
         [],
     )
-
-
-
-    const images = [
-        {
-            original: "https://kardify1.b2cinfohosting.in/uploads/products/IA-AF-IN-023_1.jpg",
-            thumbnail: "https://kardify1.b2cinfohosting.in/uploads/products/IA-AF-IN-023_1.jpg",
-        },
-        {
-            original: "https://picsum.photos/id/1015/1000/600/",
-            thumbnail: "https://picsum.photos/id/1015/250/150/",
-        },
-        {
-            original: "https://picsum.photos/id/1019/1000/600/",
-            thumbnail: "https://picsum.photos/id/1019/250/150/",
-        },
-    ];
 
     const galleryOptions = {
         showFullscreenButton: false,
@@ -126,7 +108,7 @@ const Page = ({params}) => {
                         href='#'
                         aria-current="page"
                     >
-                        {params.product_id}
+                        {productData.product_name}
                     </Link>
                 </Breadcrumbs>
             </div>
@@ -188,14 +170,14 @@ const Page = ({params}) => {
                             </div>
                             {error && <p className="text-red-500 !mt-1 text-sm">{error}</p>}
                             <div>
-                                <div className='hidden'>
+                                <div >
                                     <div className='flex justify-between font-medium text-sm'>
                                         <label>
-                                            <span className='text-sm font-medium'>Size: <span className='ml-1 font-semibold capitalize'>23</span></span>
+                                            <span className='text-sm font-medium'>Size: <span className='ml-1 font-semibold capitalize'>S</span></span>
                                         </label>
                                     </div>
                                     <div className='grid grid-cols-5 sm:grid-cols-7 gap-2 mt-3'>
-                                        <div className='relative h-10 sm:h-11 rounded-2xl border flex items-center justify-center text-sm sm:text-base uppercase font-semibold select-none overflow-hidden z-0 cursor-pointer bg-primary-6000 border-primary-6000 text-white hover:bg-primary-6000'>S</div>
+                                        <div className='relative h-10 sm:h-11 rounded-2xl border flex items-center justify-center text-sm sm:text-base uppercase font-semibold select-none overflow-hidden z-0 cursor-pointer bg-primary-6000 border-primary-6000 text-black hover:bg-primary-6000'>S</div>
                                     </div>
                                 </div>
                             </div>
