@@ -83,6 +83,7 @@ const Page = () => {
                     }
                 } else if (response.data.message === 'Session expired') {
                     openSnackbar(response.data.message, 'error');
+                    localStorage.removeItem('kardifyuserid')
                     router.push('/login');
                 }
             } catch (error) {

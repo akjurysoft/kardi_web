@@ -3,7 +3,7 @@ import Navbar from "@/app/components/Navbar";
 import { Box, Breadcrumbs, LinearProgress, Pagination, Rating } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import {
     AiFillHeart,
@@ -18,8 +18,10 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css';
 import { useSnackbar } from "@/app/SnackbarProvider";
 import { useRouter } from "next/navigation";
+import { CartContext } from "@/app/context/CartContext";
 
 const Page = ({ params }) => {
+    const [cartCounter, setCartCounter] = useContext(CartContext)
     const decodedProductId = decodeURIComponent(params.product_id);
     const { openSnackbar } = useSnackbar();
     const router = useRouter()
@@ -40,10 +42,11 @@ const Page = ({ params }) => {
                 .then((res) => {
                     if (res.data.code == 200) {
                         setProductData(res.data.products)
-                    } else if (res.data.message === 'Session expired') {
-                        openSnackbar(res.data.message, 'error');
-                        router.push('/login')
-                    }
+                    } 
+                    // else if (res.data.message === 'Session expired') {
+                    //     openSnackbar(res.data.message, 'error');
+                    //     router.push('/login')
+                    // }
                 })
                 .catch(err => {
                     console.log(err)
@@ -97,8 +100,10 @@ const Page = ({ params }) => {
             .then(res => {
                 if (res.data.status === 'success') {
                     openSnackbar(res.data.message, 'success')
+                    setCartCounter(prev => prev + 1)
                 } else {
-                    openSnackbar(res.data.message, 'error')
+                    openSnackbar('Login Requires', 'error')
+                    router.push('/login')
                 }
             })
             .catch(err => {
@@ -129,10 +134,11 @@ const Page = ({ params }) => {
                 .then((res) => {
                     if (res.data.code == 200) {
                         setWishListData(res.data.data)
-                    } else if (res.data.message === 'Session expired') {
-                        openSnackbar(res.data.message, 'error');
-                        router.push('/login')
-                    }
+                    } 
+                    // else if (res.data.message === 'Session expired') {
+                    //     openSnackbar(res.data.message, 'error');
+                    //     router.push('/login')
+                    // }
                 })
                 .catch(err => {
                     console.log(err)
@@ -157,7 +163,8 @@ const Page = ({ params }) => {
                     openSnackbar(res.data.message, 'success')
                     fetchWishListData()
                 } else {
-                    openSnackbar(res.data.message, 'error')
+                    openSnackbar('Login Requires', 'error')
+                    router.push('/login')
                 }
             })
             .catch(err => {

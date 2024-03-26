@@ -7,6 +7,7 @@ import { useSnackbar } from '../SnackbarProvider'
 import Footer from '../components/Footer'
 import { Carousel } from 'react-responsive-carousel';
 import Image from 'next/image'
+import Navbar1 from '../components/Navbar'
 
 const Page = () => {
 
@@ -52,6 +53,7 @@ const Page = () => {
     return (
         <>
 
+        <Navbar1/>
             <section className='pt-[40px] pb-[70px] relative'>
                 <div className='container mx-auto'>
                     <div className='flex justify-center'>

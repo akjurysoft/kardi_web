@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react'
 import { useSnackbar } from '@/app/SnackbarProvider';
 import MyOrdersComponents from '@/app/components/MyOrdersComponents';
+import Navbar1 from '@/app/components/Navbar';
 
 const Page = ({ params }) => {
     const router = useRouter();
@@ -63,6 +64,7 @@ const Page = ({ params }) => {
 
     return (
         <>
+        <Navbar1/>
             <div className='container mx-auto py-[40px]'>
                 <div className="flex justify-center mt-8">
                     <div className="flex w-full">

@@ -14,7 +14,7 @@ import Stories from "./components/Stories";
 import Brands from "./components/Brands";
 import Testimonials from "./components/Testimonials";
 import Footer from "./components/Footer";
-import Navbar from "./components/Navbar";
+import Navbar1 from "./components/Navbar";
 
 export default function Home() {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -26,7 +26,7 @@ export default function Home() {
     };
     return (
         <>
-            <Navbar />
+            <Navbar1 />
 
             <Banners />
 

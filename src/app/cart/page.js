@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import Footer from '../components/Footer'
 import Navbar1 from '../components/Navbar'
 import Image from 'next/image'
@@ -11,8 +11,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useRouter } from 'next/navigation'
 import { useSnackbar } from '../SnackbarProvider'
 import axios from '../../../axios'
+import { CartContext } from '../context/CartContext'
 
 const Page = () => {
+    const [cartCounter, setCartCounter] = useContext(CartContext)
     const router = useRouter()
     const {openSnackbar} = useSnackbar();
 
@@ -45,6 +47,7 @@ const Page = () => {
                         }
                     } else if (res.data.message === 'Session expired') {
                         openSnackbar(res.data.message, 'error');
+                        localStorage.removeItem('kardifyuserid')
                         router.push('/login')
                     }
                 })
@@ -69,6 +72,7 @@ const Page = () => {
             .then(res => {
                 if (res.data.status === 'success') {
                     openSnackbar(res.data.message, 'success')
+                    setCartCounter(prev => prev + 1)
                     fetchCartData()
                 } else {
                     openSnackbar(res.data.message, 'error')
@@ -111,6 +115,7 @@ const Page = () => {
             .then(res => {
                 if (res.data.status === 'success') {
                     openSnackbar(res.data.message, 'success')
+                    setCartCounter(prev => prev - 1)
                     fetchCartData()
                 } else {
                     openSnackbar(res.data.message, 'error')

@@ -9,6 +9,7 @@ import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
 import OtpInput from 'react-otp-input';
 import Image from 'next/image';
+import Navbar1 from '@/app/components/Navbar';
 
 
 const Page = () => {
@@ -174,6 +175,7 @@ const Page = () => {
     }
     return (
         <section className='pt-[40px] pb-[70px] relative'>
+        <Navbar1/>
             <div className='container mx-auto py-[40px]'>
                 {fisrtFormSection && (
                     <div className='flex justify-center'>
@@ -348,6 +350,8 @@ const Page = () => {
                     </div>
                 )}
             </div>
+
+            <Footer/>
         </section>
     )
 }
