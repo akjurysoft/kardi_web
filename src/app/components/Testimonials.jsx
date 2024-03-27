@@ -71,72 +71,7 @@ const Testimonials = () => {
     }, []);
     return (
         <>
-            {/* <section className="py-[60px]">
-                <div className="container-fluid">
-                    <div className="title text-center">
-                        <h3>Testimonials</h3>
-                    </div>
-                    <div className="tastimonial">
-                        <div className="grid grid-cols-3 gap-4">
-                            <div className="item">
-                                <div className="single-testimonial-item">
-                                    <div className="testimonial-dec">
-                                        <p>The container className also includes responsive variants like md:container by default that allow you to make something behave like a container at only a certain breakpoint and up:</p>
-                                    </div>
-                                    <div className="media flex items-center space-x-2">
-                                        <div className="media-left">
-                                            <div className="user-img"><img src="#" /></div>
-                                        </div>
-                                        <div className="media-body">
-                                            <div className="user-name">
-                                                <h4>Subham</h4>
-                                                <h5>Jena</h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="item">
-                                <div className="single-testimonial-item">
-                                    <div className="testimonial-dec">
-                                        <p>The container className also includes responsive variants like md:container by default that allow you to make something behave like a container at only a certain breakpoint and up:</p>
-                                    </div>
-                                    <div className="media flex items-center space-x-2">
-                                        <div className="media-left">
-                                            <div className="user-img"><img src="#" /></div>
-                                        </div>
-                                        <div className="media-body">
-                                            <div className="user-name">
-                                                <h4>Subham</h4>
-                                                <h5>Jena</h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="item">
-                                <div className="single-testimonial-item">
-                                    <div className="testimonial-dec">
-                                        <p>The container className also includes responsive variants like md:container by default that allow you to make something behave like a container at only a certain breakpoint and up:</p>
-                                    </div>
-                                    <div className="media flex items-center space-x-2">
-                                        <div className="media-left">
-                                            <div className="user-img"><img src="#" /></div>
-                                        </div>
-                                        <div className="media-body">
-                                            <div className="user-name">
-                                                <h4>Subham</h4>
-                                                <h5>Jena</h5>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section> */}
-
+            {testimonialData.length > 0 &&(
             <section className="py-[60px]">
                 <div className="container mx-auto">
                     <div className="title text-center">
@@ -194,6 +129,7 @@ const Testimonials = () => {
                     </Swiper>
                 </div>
             </section>
+            )}
         </>
     )
 }

@@ -1,8 +1,9 @@
 'use client'
 import Navbar from "@/app/components/Navbar";
-import { Box, Breadcrumbs, LinearProgress, Pagination, Rating } from "@mui/material";
+import { Box, Breadcrumbs, Chip, LinearProgress, Pagination, Rating, Typography } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
+import { emphasize, styled } from '@mui/material/styles';
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import {
@@ -13,16 +14,52 @@ import {
     AiOutlineStar,
 } from "react-icons/ai";
 import Footer from "@/app/components/Footer";
-import axios from "../../../../axios";
+import axios from "../../../../../axios";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css';
 import { useSnackbar } from "@/app/SnackbarProvider";
 import { useRouter } from "next/navigation";
 import { CartContext } from "@/app/context/CartContext";
 
+
+const StyledBreadcrumb = styled(Chip)(({ theme }) => {
+    const backgroundColor =
+        theme.palette.mode === 'light'
+            ? theme.palette.grey[100]
+            : theme.palette.grey[800];
+    return {
+        backgroundColor,
+        height: theme.spacing(3),
+        color: theme.palette.text.primary,
+        fontWeight: theme.typography.fontWeightRegular,
+        '&:hover, &:focus': {
+            backgroundColor: emphasize(backgroundColor, 0.06),
+        },
+        '&:active': {
+            boxShadow: theme.shadows[1],
+            backgroundColor: emphasize(backgroundColor, 0.12),
+        },
+    };
+});
+
 const Page = ({ params }) => {
     const [cartCounter, setCartCounter] = useContext(CartContext)
-    const decodedProductId = decodeURIComponent(params.product_id);
+    const decodedProductId = decodeURIComponent(params.slug);
+    console.log(decodedProductId)
+    const queryParams = decodedProductId.split('&');
+
+    let year = null;
+
+    for (let i = 0; i < queryParams.length; i++) {
+        const paramParts = queryParams[i].split('=');
+        if (paramParts[0] === 'year') {
+            year = paramParts[1];
+            break;
+        }
+    }
+
+    console.log('Year:', year);
+
     const { openSnackbar } = useSnackbar();
     const router = useRouter()
 
@@ -41,11 +78,7 @@ const Page = ({ params }) => {
             axios.get(`/api/get-products-customer?${decodedProductId}`)
                 .then((res) => {
                     if (res.data.code == 200) {
-                        if(res.data.products[0].product_type === 'vehicle selection'){
-                            router.push(`/vehicle-selection/${decodedProductId}`)
-                        }else{
-                            setProductData(res.data.products)
-                        }
+                        setProductData(res.data.products)
                     }
                 })
                 .catch(err => {
@@ -102,9 +135,7 @@ const Page = ({ params }) => {
                     openSnackbar(res.data.message, 'success')
                     setCartCounter(prev => prev + 1)
                 } else {
-                    openSnackbar('Login Requires', 'error')
-                    localStorage.removeItem('kardifyuserid')
-                    router.push('/login')
+                    openSnackbar(res.data.message, 'error')
                 }
             })
             .catch(err => {
@@ -135,7 +166,7 @@ const Page = ({ params }) => {
                 .then((res) => {
                     if (res.data.code == 200) {
                         setWishListData(res.data.data)
-                    } 
+                    }
                     // else if (res.data.message === 'Session expired') {
                     //     openSnackbar(res.data.message, 'error');
                     //     router.push('/login')
@@ -214,12 +245,27 @@ const Page = ({ params }) => {
                         href='#'
                         aria-current="page"
                     >
+                        Vehicle Selection
+                    </Link>
+                    <Link
+                        underline="hover"
+                        color="text.primary"
+                        href='#'
+                        aria-current="page"
+                    >
                         Products
                     </Link>
                 </Breadcrumbs>
             </div>
 
+
             <div className="container mx-auto">
+            <span className="text-[24px] text-[#222] font-[700]">You Choose</span>
+                <Breadcrumbs aria-label="breadcrumb">
+                    <StyledBreadcrumb component="a" href="#" label={paginatedRows[0]?.car_brand?.brand_name} />
+                    <StyledBreadcrumb component="a" href="#" label={paginatedRows[0]?.car_model?.model_name} />
+                    <StyledBreadcrumb label={year}/>
+                </Breadcrumbs>
                 <div className="py-[50px]">
                     <ul className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
                         {paginatedRows.length > 0 ?

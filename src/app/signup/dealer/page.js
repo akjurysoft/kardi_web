@@ -174,8 +174,9 @@ const Page = () => {
         })
     }
     return (
-        <section className='pt-[40px] pb-[70px] relative'>
+        <>
         <Navbar1/>
+        <section className='pt-[40px] pb-[70px] relative'>
             <div className='container mx-auto py-[40px]'>
                 {fisrtFormSection && (
                     <div className='flex justify-center'>
@@ -353,6 +354,7 @@ const Page = () => {
 
             <Footer/>
         </section>
+        </>
     )
 }
 

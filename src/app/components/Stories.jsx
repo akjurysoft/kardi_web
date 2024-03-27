@@ -10,43 +10,6 @@ import axios from '../../../axios';
 
 SwiperCore.use([Navigation, Pagination]);
 const Stories = () => {
-    const stories = [
-        {
-            story_img: 'https://kardify1.b2cinfohosting.in/uploads/story/banner/PHOTO-2023-04-20-19-55-00.jpg',
-            story_heading: 'Story 1',
-            story_description: '<p>Description 1</p>',
-            upload_type: 1,
-            id: 1,
-        },
-        {
-            story_img: 'https://kardify1.b2cinfohosting.in/uploads/story/banner/sdfdsvdsvdsv.jpg',
-            story_heading: 'Story 2',
-            story_description: '<p>Description 2</p>',
-            upload_type: 2,
-            id: 2,
-        },
-        {
-            story_img: 'https://kardify1.b2cinfohosting.in/uploads/story/banner/1694412035799WhatsApp%20Image%202023-09-11%20at%2011.30.02%20AM.jpeg',
-            story_heading: 'Story 3',
-            story_description: '<p>Description 3</p>',
-            upload_type: 1,
-            id: 3,
-        },
-        {
-            story_img: 'https://kardify1.b2cinfohosting.in/uploads/story/banner/sdfdsvdsv.jpg',
-            story_heading: 'Story 3',
-            story_description: '<p>Description 3</p>',
-            upload_type: 1,
-            id: 4,
-        },
-        {
-            story_img: 'https://kardify1.b2cinfohosting.in/uploads/story/banner/PHOTO-2023-04-20-19-55-00.jpg',
-            story_heading: 'Story 3',
-            story_description: '<p>Description 3</p>',
-            upload_type: 1,
-            id: 5,
-        },
-    ];
 
     const [storyData, setStoryData] = useState([])
     useEffect(() => {
@@ -118,36 +81,42 @@ const Stories = () => {
 
                     <div className="swiper-container py-[80px]">
                         <div className="swiper-wrapper">
-                            {storyData.map((story, index) => (
-                                <SwiperSlide key={index}>
-                                    <div className="item">
-                                        <div className="item-box">
-                                        {story.story_type === 'image' ? (
-                                            <div className="thumbnail tmb">
-                                                <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${story.image_url}`} title={story.story_heading} alt={story.story_heading} />
-                                            </div>
-                                        ):(
-                                            <div className="thumbnail tmb">
-                                                <video src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${story.image_url}`} title={story.story_heading} className='w-full h-full'></video>
-                                            </div>
-                                        )}
-                                            <div className="item-box-dec">
-                                                <div  className="homeStoryDescription text-[14px]">{story.description.slice(0, 50)}...</div>
-                                                <Link href="#" className='btn-link'>Read More</Link>
-                                                {/* {story.upload_type === 1 && (
+                            {storyData.length > 0 ?
+                                <>
+                                    {storyData.map((story, index) => (
+                                        <SwiperSlide key={index}>
+                                            <div className="item">
+                                                <div className="item-box">
+                                                    {story.story_type === 'image' ? (
+                                                        <div className="thumbnail tmb">
+                                                            <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${story.image_url}`} title={story.story_heading} alt={story.story_heading} />
+                                                        </div>
+                                                    ) : (
+                                                        <div className="thumbnail tmb">
+                                                            <video src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${story.image_url}`} title={story.story_heading} className='w-full h-full'></video>
+                                                        </div>
+                                                    )}
+                                                    <div className="item-box-dec">
+                                                        <div className="homeStoryDescription text-[14px]">{story.description.slice(0, 50)}...</div>
+                                                        <Link href="#" className='btn-link'>Read More</Link>
+                                                        {/* {story.upload_type === 1 && (
                                                     <a className="btn btn-link" href={`./stories/customer_story/${story.id}/${story.story_heading}`}>
                                                         <i className="fa fa-angle-right"></i> Read more
                                                     </a>
                                                 )} */}
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </SwiperSlide>
-                            ))}
+                                        </SwiperSlide>
+                                    ))}
+
+                                </>
+                                :
+                                <div className='flex justify-center w-full'>
+                                    <span className='text-center text-[18px] text-white'>No Stories Found</span>
+                                </div>
+                            }
                         </div>
-                        {/* <div className="swiper-pagination"></div>
-                    <div className="swiper-button-prev"></div>
-                    <div className="swiper-button-next"></div> */}
                     </div>
                 </div>
             </section>
