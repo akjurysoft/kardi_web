@@ -67,8 +67,8 @@ const Page = () => {
                                 </div>
                                 <div className='mt-4'>
                                     <div className='mb-4'>
-                                        <label htmlFor="mobile" className='text-sm'>Enter Mobile Number</label>
-                                        <input type='text' id="mobile" placeholder='Enter Your Mobile Number' className='inputText' onChange={e => setMobile(e.target.value)} />
+                                        <label htmlFor="mobile" className='text-sm'>Enter Username</label>
+                                        <input type='text' id="mobile" placeholder='Mobile No. or Email' className='inputText' onChange={e => setMobile(e.target.value)} />
                                     </div>
                                 </div>
                                 <div className='mt-4'>
@@ -89,7 +89,7 @@ const Page = () => {
 
                                 <div className='flex flex-col space-y-3 justify-center'>
                                     <span className='text-center cursor-pointer text-[15px] text-[#FFBE26] font-[500] underline hover:opacity-80' onClick={toggleLoginType}>{isDealerLogin ? 'Login as Customer' : 'Login as Dealer'}</span>
-                                    <span className='text-center text-[13px] font-[500]'>Don&lsquo;t have an {isDealerLogin ? 'Dealer' : 'Customer'} account? <Link href={isDealerLogin ? '/signup/dealer' : '/signup/customer'} className='text-[13px] text-[#FFBE26] font-[500] underline hover:opacity-80 cursor-pointer hover:text-[#FFBE26]'>Sign Up</Link></span>
+                                    <span className='text-center text-[13px] font-[500]'> {isDealerLogin ? 'Want to be a Dealer?' : "Don't have an account"} <Link href={isDealerLogin ? '/signup/dealer' : '/signup/customer'} className='text-[13px] text-[#FFBE26] font-[500] underline hover:opacity-80 cursor-pointer hover:text-[#FFBE26]'>Sign Up</Link></span>
                                 </div>
                             </div>
                         </div>

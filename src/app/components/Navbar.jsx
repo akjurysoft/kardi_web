@@ -40,10 +40,77 @@ const Navbar1 = () => {
         if (!unmounted) {
             fetchSubCategoryData()
             fetchSuperSubCategoryData()
+            fetchUserRoleData()
         }
 
         return () => { unmounted = true };
     }, [])
+
+    const [role, setRole] = useState('')
+    const fetchUserRoleData = useCallback(
+        () => {
+            axios.get(`/api/fetch-roles`, {
+                headers: {
+                    Authorization: localStorage.getItem('kardifywebtoken'),
+                }
+            })
+                .then((res) => {
+                    if (res.data.code == 200) {
+                        setRole(res.data.role)
+                    } else if (res.data.message === 'Session expired') {
+                        localStorage.removeItem('kardifyuserid')
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                    if (err.response && err.response.data.statusCode === 400) {
+                        openSnackbar(err.response.data.message, 'error');
+                    }
+                })
+        },
+        [],)
+
+    const [customerData, setCustomerData] = useState(null)
+    const [dealerData, setDealerData] = useState(null)
+    useEffect(() => {
+        if (role === 'CUSTOMER') {
+            axios.get(`/api/fetch-customer-details`, {
+                headers: {
+                    Authorization: localStorage.getItem('kardifywebtoken'),
+                }
+            })
+                .then((res) => {
+                    console.log(res)
+                    if (res.data.code === 200) {
+                        setCustomerData(res.data.customer_data);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    if (err.response && err.response.data.statusCode === 400) {
+                        openSnackbar(err.response.data.message, 'error');
+                    }
+                });
+        } else if (role === 'DEALER') {
+            axios.get(`/api/fetch-dealer-details`, {
+                headers: {
+                    Authorization: localStorage.getItem('kardifywebtoken'),
+                }
+            })
+                .then((res) => {
+                    if (res.data.code === 200) {
+                        setDealerData(res.data.dealer_data);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    if (err.response && err.response.data.statusCode === 400) {
+                        openSnackbar(err.response.data.message, 'error');
+                    }
+                });
+        }
+    }, [role])
+
 
     const [userId, setUserId] = useState(null)
     useEffect(() => {
@@ -102,9 +169,21 @@ const Navbar1 = () => {
                 </Link>
                 <div className="flex items-center md:order-2 space-x-1 md:space-x-2 rtl:space-x-reverse">
                     {userId ?
-                        <Link href="/profile/my-account" className="text-white hover:text-gray-300 text-[13px] font-[600] md:text-[15px] md:font-[700] tracking-[1px]" >Subham Kumar jena</Link>
+                        <>
+                            {role === 'CUSTOMER' ?
+                                <>
+                                    <Link href="/profile/my-account" className="text-white hover:text-gray-300 text-[13px] font-[600] md:text-[15px] md:font-[700] tracking-[1px] capitalize" >{customerData?.customer.fullname}</Link>
+                                </>
+                                :
+                                <>
+                                    <Link href="/profile/my-account" className="text-white hover:text-gray-300 text-[13px] font-[600] md:text-[13px] md:font-[700] tracking-[1px] capitalize" >{dealerData?.fullname}</Link>
+                                </>
+                            }
+                        </>
                         :
-                        <Link href="/login" className="text-white hover:text-gray-300 text-[13px] font-[600] md:text-[15px] md:font-[700] tracking-[1px]">Login / Signup</Link>
+                        <>
+                            <Link href="/login" className="text-white hover:text-gray-300 text-[13px] font-[600] md:text-[13px] md:font-[700] tracking-[1px]">Login / Signup</Link>
+                        </>
                     }
 
                     <IconButton color="inherit">

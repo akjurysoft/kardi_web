@@ -106,7 +106,7 @@ const MyOrdersComponents = ({ orders }) => {
                                                 <TableRow key={product.id}>
                                                     <TableCell>
                                                         <div className='flex items-center'>
-                                                            <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${product.product_images[0].image_url}`} alt={product.product.product_name} style={{ width: '100px', height: '100px', marginRight: '10px' }} />
+                                                            <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${product.product_images[0]?.image_url}`} alt={product.product.product_name} style={{ width: '100px', height: '100px', marginRight: '10px' }} />
                                                         </div>
                                                     </TableCell>
                                                     <TableCell>
