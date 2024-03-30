@@ -247,12 +247,12 @@ const Navbar1 = () => {
                                 </svg>
                             </button>
                             <div id="mega-menu-dropdown" className={`absolute z-10 flex w-[999px] gap-[20px] text-sm bg-white border left-[300px] top-[70px] justify-evenly overflow-scroll h-[300px] ${isInteriorDropdownOpen ? 'block' : 'hidden'} md:grid-cols-3 border-gray-700`}>
-                                {subCategoryData && subCategoryData.filter(e => e.category.category_name === 'INTERIOR' || e.category.category_name === 'INTERIORS').map((e, i) =>
+                                {subCategoryData && subCategoryData.filter(e => e.category.category_name === 'INTERIORS').map((e, i) =>
                                     <>
                                         <div className="p-4 pb-0  md:pb-4 text-white" key={i}>
                                             <ul className="space-y-4" aria-labelledby="mega-menu-dropdown-button">
                                                 <span className='text-gray-700 font-[600] hover:text-blue-600 py-2'>{e.sub_category_name}</span>
-                                                {superSubCategoryData && superSubCategoryData.filter(ee => ee.subCategory.sub_category_name === e.sub_category_name && ee.category.category_name === 'INTERIOR').map((ee, index) =>
+                                                {superSubCategoryData && superSubCategoryData.filter(ee => ee.subCategory.sub_category_name === e.sub_category_name && ee.category.category_name === 'INTERIORS').map((ee, index) =>
                                                     <li key={index}>
                                                         <Link href={`/product/super_sub_category_id=${ee.id}`} className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">
                                                             {ee.super_sub_category_name}
