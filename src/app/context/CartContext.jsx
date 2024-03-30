@@ -17,24 +17,27 @@ const CartContextWrapper = (props) => {
     if (typeof window !== 'undefined') {
       token = localStorage.getItem('kardifywebtoken');
     }
-    axios.get('/api/get-carts', {
-        headers: {
-          Authorization: token
-        },
-      })
-      .then((res) => {
-        console.log(res)
-        if (res.data.message === 'Session expired' || !localStorage.getItem('kardifywebtoken')) {
-          // router.push('/login');
-          localStorage.removeItem('kardifyuserid')
-        } else if(res.data.status === 'success') {
-          // console.log(res)
-          setCartData(res.data.cartItems)
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+
+    if (token) {
+      axios.get('/api/get-carts', {
+          headers: {
+            Authorization: token
+          },
+        })
+        .then((res) => {
+          console.log(res)
+          if (res.data.message === 'Session expired' || !localStorage.getItem('kardifywebtoken')) {
+            // router.push('/login');
+            localStorage.removeItem('kardifyuserid')
+          } else if(res.data.status === 'success') {
+            // console.log(res)
+            setCartData(res.data.cartItems)
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   }, []);
 
   useEffect(() => {

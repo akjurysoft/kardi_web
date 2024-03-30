@@ -49,24 +49,26 @@ const Navbar1 = () => {
     const [role, setRole] = useState('')
     const fetchUserRoleData = useCallback(
         () => {
-            axios.get(`/api/fetch-roles`, {
-                headers: {
-                    Authorization: localStorage.getItem('kardifywebtoken'),
-                }
-            })
-                .then((res) => {
-                    if (res.data.code == 200) {
-                        setRole(res.data.role)
-                    } else if (res.data.message === 'Session expired') {
-                        localStorage.removeItem('kardifyuserid')
+            if(typeof window !== 'undefined' && localStorage.getItem('kardifywebtoken')) {
+                axios.get(`/api/fetch-roles`, {
+                    headers: {
+                        Authorization: localStorage.getItem('kardifywebtoken'),
                     }
                 })
-                .catch(err => {
-                    console.log(err)
-                    if (err.response && err.response.data.statusCode === 400) {
-                        openSnackbar(err.response.data.message, 'error');
-                    }
-                })
+                    .then((res) => {
+                        if (res.data.code == 200) {
+                            setRole(res.data.role)
+                        } else if (res.data.message === 'Session expired') {
+                            localStorage.removeItem('kardifyuserid')
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        if (err.response && err.response.data.statusCode === 400) {
+                            openSnackbar(err.response.data.message, 'error');
+                        }
+                    })
+            }
         },
         [],)
 
@@ -74,40 +76,44 @@ const Navbar1 = () => {
     const [dealerData, setDealerData] = useState(null)
     useEffect(() => {
         if (role === 'CUSTOMER') {
-            axios.get(`/api/fetch-customer-details`, {
-                headers: {
-                    Authorization: localStorage.getItem('kardifywebtoken'),
-                }
-            })
-                .then((res) => {
-                    console.log(res)
-                    if (res.data.code === 200) {
-                        setCustomerData(res.data.customer_data);
+            if(typeof window !== 'undefined' && localStorage.getItem('kardifywebtoken')) {
+                axios.get(`/api/fetch-customer-details`, {
+                    headers: {
+                        Authorization: localStorage.getItem('kardifywebtoken'),
                     }
                 })
-                .catch(err => {
-                    console.log(err);
-                    if (err.response && err.response.data.statusCode === 400) {
-                        openSnackbar(err.response.data.message, 'error');
-                    }
-                });
+                    .then((res) => {
+                        console.log(res)
+                        if (res.data.code === 200) {
+                            setCustomerData(res.data.customer_data);
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        if (err.response && err.response.data.statusCode === 400) {
+                            openSnackbar(err.response.data.message, 'error');
+                        }
+                    });
+            }
         } else if (role === 'DEALER') {
-            axios.get(`/api/fetch-dealer-details`, {
-                headers: {
-                    Authorization: localStorage.getItem('kardifywebtoken'),
-                }
-            })
-                .then((res) => {
-                    if (res.data.code === 200) {
-                        setDealerData(res.data.dealer_data);
+            if(typeof window !== 'undefined' && localStorage.getItem('kardifywebtoken')) {
+                axios.get(`/api/fetch-dealer-details`, {
+                    headers: {
+                        Authorization: localStorage.getItem('kardifywebtoken'),
                     }
                 })
-                .catch(err => {
-                    console.log(err);
-                    if (err.response && err.response.data.statusCode === 400) {
-                        openSnackbar(err.response.data.message, 'error');
-                    }
-                });
+                    .then((res) => {
+                        if (res.data.code === 200) {
+                            setDealerData(res.data.dealer_data);
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        if (err.response && err.response.data.statusCode === 400) {
+                            openSnackbar(err.response.data.message, 'error');
+                        }
+                    });
+            }
         }
     }, [role])
 

@@ -127,6 +127,8 @@ const Page = ({ params }) => {
 
     const fetchWishListData = useCallback(
         () => {
+            if(!localStorage.getItem('kardifywebtoken')) return
+            
             axios.get(`/api/get-all-wishlists`, {
                 headers: {
                     Authorization: localStorage.getItem('kardifywebtoken')
