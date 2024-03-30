@@ -247,7 +247,7 @@ const Navbar1 = () => {
                                 </svg>
                             </button>
                             <div id="mega-menu-dropdown" className={`absolute z-10 flex w-[999px] gap-[20px] text-sm bg-white border left-[300px] top-[70px] justify-evenly overflow-scroll h-[300px] ${isInteriorDropdownOpen ? 'block' : 'hidden'} md:grid-cols-3 border-gray-700`}>
-                                {subCategoryData && subCategoryData.filter(e => e.category.category_name === 'INTERIOR').map((e, i) =>
+                                {subCategoryData && subCategoryData.filter(e => e.category.category_name === 'INTERIOR' || e.category.category_name === 'INTERIORS').map((e, i) =>
                                     <>
                                         <div className="p-4 pb-0  md:pb-4 text-white" key={i}>
                                             <ul className="space-y-4" aria-labelledby="mega-menu-dropdown-button">
