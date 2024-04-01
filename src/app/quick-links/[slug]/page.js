@@ -1,6 +1,6 @@
 'use client'
 import Navbar1 from '@/app/components/Navbar'
-import { Breadcrumbs } from '@mui/material'
+import { Breadcrumbs, CircularProgress } from '@mui/material'
 import axios from '../../../../axios'
 import Link from 'next/link'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -11,6 +11,7 @@ const Page = ({ params }) => {
     const decode = decodeURIComponent(params.slug)
     const [staticData, setStaticData] = useState({})
     const [aboutImage, setAboutImage] = useState(null)
+    const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
         let unmounted = false;
         if (!unmounted) {
@@ -49,9 +50,11 @@ const Page = ({ params }) => {
                         if (decode === 'cancellation policy' && staticData1.cancellation_status == 1) {
                             setStaticData(staticData1.cancellation_policy)
                         }
+                        setIsLoading(false);
                     }
                 })
                 .catch(err => {
+                    setIsLoading(false);
                     console.log(err)
                     if (err.response && err.response.data.statusCode === 400) {
                         openSnackbar(err.response.data.message, 'error');
@@ -83,9 +86,17 @@ const Page = ({ params }) => {
             </div>
 
             <section className='container mx-auto py-[30px]'>
-                <span className='capitalize text-2xl font-bold '>{decode}</span>
-                {aboutImage && <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${aboutImage}`} className='w-full h-[350px] object-cover py-5' />}
-                <div className='py-5' dangerouslySetInnerHTML={{ __html: staticData }} />
+                {isLoading ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
+                        <CircularProgress />
+                    </div>
+                ) : (
+                    <>
+                        <span className='capitalize text-2xl font-bold '>{decode}</span>
+                        {aboutImage && <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${aboutImage}`} className='w-full h-[350px] object-cover py-5' />}
+                        <div className='py-5' dangerouslySetInnerHTML={{ __html: staticData }} />
+                    </>
+                )}
             </section>
 
             <Footer />

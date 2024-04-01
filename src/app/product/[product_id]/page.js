@@ -273,9 +273,9 @@ const Page = ({ params }) => {
 
                                                 <span className="w-[50px] h-[50px] flex items-center justify-center rounded-full bg-[#E3BB54]  text-neutral-700  nc-shadow-lg absolute top-3 right-3 z-10">
                                                     {product.discount_type === "amount" ? (
-                                                        <p className="w-[40px] text-[12px] font-[600]">₹{(product.discount)} <span className="text-[10px] font-[500] text-[#404040]">off</span></p>
+                                                        <p className="w-[40px] text-[12px] font-[600] text-center">₹{(product.discount)} <span className="text-[10px] font-[500] text-[#404040]">off</span></p>
                                                     ) : (
-                                                        <p className="w-[40px] text-[12px] font-[600]">{product.discount}% <span className="text-[10px] font-[500] text-[#404040]">off</span></p>
+                                                        <p className="w-[40px] text-[12px] font-[600] text-center">{product.discount}% <span className="text-[10px] font-[500] text-[#404040]">off</span></p>
                                                     )}
                                                 </span>
                                             </div>
