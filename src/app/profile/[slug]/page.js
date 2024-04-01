@@ -24,6 +24,43 @@ const Page = ({ params }) => {
         router.push(`/profile/${tab}`);
     };
 
+
+    // -------------------------Profile Fetching---------------------------
+
+    const [userData, setUserData] = useState([])
+    console.log(userData)
+    useEffect(() => {
+        let unmounted = false;
+        if (!unmounted) {
+            fetchProfile()
+        }
+
+        return () => { unmounted = true };
+    }, [])
+
+    const fetchProfile = useCallback(
+        () => {
+            axios.get(`/api/fetch-customer-details`, {
+                headers: {
+                    Authorization: localStorage.getItem('kardifywebtoken'),
+                }
+            })
+                .then((res) => {
+                    console.log(res)
+                    if (res.data.code === 200) {
+                        setUserData(res.data.customer_data);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    if (err.response && err.response.data.statusCode === 400) {
+                        openSnackbar(err.response.data.message, 'error');
+                    }
+                });
+        },
+        []
+    )
+
     // -------------------------Orders Fetching---------------------------
 
     const [orders, setOrders] = useState([])
