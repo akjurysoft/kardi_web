@@ -14,9 +14,9 @@ const Footer = () => {
                                 <h3>Quick Links</h3>
                                 <ul className="list-none fotr-menu">
                                     <li><a href="/">Home</a></li>
-                                    <li><a href="/about-us">About us</a></li>
+                                    <li><a href="/quick-links/about us">About us</a></li>
                                     <li><a href="/contact-us">Contact us</a></li>
-                                    <li><a href="/my-account">My account</a></li>
+                                    <li><a href="/profile/my-account">My account</a></li>
                                     <li><a href="/catalogs">Catalogs</a></li>
                                     <li><a href="/new-designs-or-products">New Designs Or Products</a></li>
                                 </ul>
@@ -26,9 +26,9 @@ const Footer = () => {
                             <div className="fotr-media-item">
                                 <h3>Customised Services</h3>
                                 <ul className="list-none fotr-menu">
-                                    <li><a href="/privacy-policy">Privacy policy</a></li>
-                                    <li><a href="/return-policy">Return policy</a></li>
-                                    <li><a href="/shipping-policy">Shipping policy</a></li>
+                                    <li><a href="/quick-links/privacy policy">Privacy policy</a></li>
+                                    <li><a href="/quick-links/return policy">Return policy</a></li>
+                                    <li><a href="/quick-links/shipping policy">Shipping policy</a></li>
                                     <li><a href="/terms-of-us">Terms of us</a></li>
                                 </ul>
                             </div>
