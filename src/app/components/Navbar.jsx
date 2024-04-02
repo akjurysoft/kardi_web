@@ -209,7 +209,7 @@ const Navbar1 = () => {
                 <div id="mega-menu" className={`items-center justify-between w-full md:flex md:w-auto md:order-1 ${isAlloyDropdownOpen ? 'block' : 'hidden'}`}>
                     <ul className="flex flex-col items-center mt-4 font-medium md:flex-row md:mt-0 md:space-x-8 rtl:space-x-reverse">
                         <li>
-                            <Link href="/vehicle-selection/category_id=10" className="text-[13px] text-[600] text-white hover:text-[#e5bc56] " aria-current="page">SHOP BY CARS</Link>
+                            <Link href="/vehicle-selection/category_id=5" className="text-[13px] text-[600] text-white hover:text-[#e5bc56] " aria-current="page">SHOP BY CARS</Link>
                         </li>
                         <li>
                             <button onClick={toggleAlloyDropdown} id="mega-menu-dropdown-button" data-dropdown-toggle="mega-menu-dropdown" className="flex items-center text-[13px] text-[600] text-white hover:text-[#e5bc56] ">

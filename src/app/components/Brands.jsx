@@ -37,7 +37,7 @@ const Brands = () => {
     return (
         <>
             {brandData.length > 0 && (
-                <section className="py-[80px]">
+                <section className="py-[20px]">
                     <div className="container mx-auto">
                         <div className="relative mb-[35px] text-center">
                             <h3 className='text-[40px] font-[300] '>Brands </h3>

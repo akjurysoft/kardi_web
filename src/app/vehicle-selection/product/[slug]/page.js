@@ -58,8 +58,6 @@ const Page = ({ params }) => {
         }
     }
 
-    console.log('Year:', year);
-
     const { openSnackbar } = useSnackbar();
     const router = useRouter()
 
@@ -175,13 +173,18 @@ const Page = ({ params }) => {
                 .catch(err => {
                     console.log(err)
                     if (err.response && err.response.data.statusCode === 400) {
-                        openSnackbar(err.response.data.message, 'error');
+                        // openSnackbar(err.response.data.message, 'error');
                     }
                 })
         },
         [],
     )
 
+    if(!localStorage.getItem('kardifywebtoken')) {
+        openSnackbar('Login Required', 'error')
+        router.push('/login')
+        return;
+    }
     const addToWish = (data) => {
         axios.post('/api/add-to-wishlist', {
             product_id: data.id,
@@ -317,9 +320,9 @@ const Page = ({ params }) => {
 
                                                 <span className="w-[50px] h-[50px] flex items-center justify-center rounded-full bg-[#E3BB54]  text-neutral-700  nc-shadow-lg absolute top-3 right-3 z-10">
                                                     {product.discount_type === "amount" ? (
-                                                        <p className="w-[40px] text-[12px] font-[600]">₹{(product.discount)} <span className="text-[10px] font-[500] text-[#404040]">off</span></p>
+                                                        <p className="w-[40px] text-[12px] font-[600] text-center">₹{(product.discount)} <span className="text-[10px] font-[500] text-[#404040]">off</span></p>
                                                     ) : (
-                                                        <p className="w-[40px] text-[12px] font-[600]">{product.discount}% <span className="text-[10px] font-[500] text-[#404040]">off</span></p>
+                                                        <p className="w-[40px] text-[12px] font-[600] text-center">{product.discount}% <span className="text-[10px] font-[500] text-[#404040]">off</span></p>
                                                     )}
                                                 </span>
                                             </div>
