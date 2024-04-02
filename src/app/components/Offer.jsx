@@ -77,6 +77,8 @@ const Offer = () => {
                         spaceBetween={10}
                         navigation={false}
                         pagination={{ clickable: true }}
+                        autoplay={{ delay: 5000, disableOnInteraction: false }} 
+                        pauseOnMouseEnter={true}
                         breakpoints={{
                             640: {
                                 slidesPerView: 2,
@@ -93,7 +95,7 @@ const Offer = () => {
                             <SwiperSlide key={index}>
                                 <Link href={`/offers/${item.id}`}>
                                     <div className="py-[20px]">
-                                        {item.image && <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${item.image}`} alt="image" className='rounded-[18px] w-full' />}
+                                        {item.image && <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${item.image}`} alt="image" className='rounded-[18px] w-full h-[210px] object-cover md:h-[220px] lg:h-[220px]' />}
                                         <div className="text-center py-2 capitalize">
                                             <h3 className="font-bold text-[#000]">{item.discount_name}</h3>
                                         </div>
