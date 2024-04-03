@@ -27,7 +27,7 @@ const CartContextWrapper = (props) => {
         .then((res) => {
           console.log(res)
           if (res.data.message === 'Session expired' || !localStorage.getItem('kardifywebtoken')) {
-            router.push('/login');
+            // router.push('/login');
             localStorage.removeItem('kardifyuserid')
           } else if(res.data.status === 'success') {
             // console.log(res)
