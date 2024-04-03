@@ -74,9 +74,10 @@ const Brands = () => {
                         <ul className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-5 lg:grid-cols-5 gap-4">
                             {brandData && brandData.map((brand, index) => {
                                 return (
-                                    <li key={index}>
-                                        <Link href={`/product/product_brand_id=${brand.id}`} className="partner-logo flex justify-center items-center">
+                                    <li key={index} >
+                                        <Link  href={`/product/product_brand_id=${brand.id}`} className="partner-logo flex flex-col space-y-2 justify-center items-center">
                                             <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${brand.image_url}`} className="w-20 h-20 transition-transform hover:scale-125" alt="Brand" />
+                                            <span className='text-[10px] text-center font-[500] text-[#000] md:text-[14px] lg:text-[14px]'>{brand.brand_name}</span>
                                         </Link>
                                     </li>
                                 )

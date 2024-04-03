@@ -13,26 +13,34 @@ const Navbar1 = () => {
     const [cartCounter, setCartCounter] = useContext(CartContext)
     const [showMegaMenu, setShowMegaMenu] = useState(false);
 
-    const [isExteriorDropdownOpen, setIsExteriorDropdownOpen] = useState(false);
-    const toggleExteriorDropdown = () => {
-        setIsExteriorDropdownOpen(!isExteriorDropdownOpen);
-        setIsAlloyDropdownOpen(false);
-        setIsInteriorDropdownOpen(false);
+    // const [isExteriorDropdownOpen, setIsExteriorDropdownOpen] = useState(false);
+    // const toggleExteriorDropdown = () => {
+    //     setIsExteriorDropdownOpen(!isExteriorDropdownOpen);
+    //     setIsAlloyDropdownOpen(false);
+    //     setIsInteriorDropdownOpen(false);
+    // };
+
+    // const [isAlloyDropdownOpen, setIsAlloyDropdownOpen] = useState(false);
+    // const toggleAlloyDropdown = () => {
+    //     setIsAlloyDropdownOpen(!isAlloyDropdownOpen);
+    //     setIsExteriorDropdownOpen(false);
+    //     setIsInteriorDropdownOpen(false);
+    // };
+
+    // const [isInteriorDropdownOpen, setIsInteriorDropdownOpen] = useState(false);
+    // const toggleInteriorDropdown = () => {
+    //     setIsInteriorDropdownOpen(!isInteriorDropdownOpen);
+    //     setIsExteriorDropdownOpen(false);
+    //     setIsAlloyDropdownOpen(false);
+    // };
+
+
+    const [dropdownOpen, setDropdownOpen] = useState('');
+
+    const toggleDropdown = (dropdownId) => {
+        setDropdownOpen(dropdownOpen === dropdownId ? '' : dropdownId);
     };
 
-    const [isAlloyDropdownOpen, setIsAlloyDropdownOpen] = useState(false);
-    const toggleAlloyDropdown = () => {
-        setIsAlloyDropdownOpen(!isAlloyDropdownOpen);
-        setIsExteriorDropdownOpen(false);
-        setIsInteriorDropdownOpen(false);
-    };
-
-    const [isInteriorDropdownOpen, setIsInteriorDropdownOpen] = useState(false);
-    const toggleInteriorDropdown = () => {
-        setIsInteriorDropdownOpen(!isInteriorDropdownOpen);
-        setIsExteriorDropdownOpen(false);
-        setIsAlloyDropdownOpen(false);
-    };
 
 
     useEffect(() => {
@@ -168,10 +176,10 @@ const Navbar1 = () => {
 
     return (
 
-        <nav className="bg-gray-900">
-            <div className="flex flex-wrap items-center justify-between max-w-screen-xl mx-auto p-4">
+        <nav className="bg-black">
+            <div className="flex flex-wrap items-center  justify-between max-w-screen-xl mx-auto p-4 ">
                 <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
-                    <img src="https://kardify.netlify.app/assets/images/logo.png" className="h-8" alt="Flowbite Logo" />
+                    <img src="https://kardify.netlify.app/assets/images/logo.png" className="h-[3em] md:h-[3em] lg:h-[4em]" alt="Flowbite Logo" />
                 </Link>
                 <div className="flex items-center md:order-2 space-x-1 md:space-x-2 rtl:space-x-reverse">
                     {userId ?
@@ -206,13 +214,13 @@ const Navbar1 = () => {
                         </svg>
                     </button>
                 </div>
-                <div id="mega-menu" className={`items-center justify-between w-full md:flex md:w-auto md:order-1 ${isAlloyDropdownOpen ? 'block' : 'hidden'}`}>
+                <div id="mega-menu" className={`items-center justify-between w-full md:flex md:w-auto md:order-1  ${dropdownOpen ? 'block' : 'hidden'}`}>
                     <ul className="flex flex-col items-center mt-4 font-medium md:flex-row md:mt-0 md:space-x-8 rtl:space-x-reverse">
                         <li>
                             <Link href="/vehicle-selection/category_id=5" className="text-[13px] text-[600] text-white hover:text-[#e5bc56] " aria-current="page">SHOP BY CARS</Link>
                         </li>
                         <li>
-                            <button onClick={toggleAlloyDropdown} id="mega-menu-dropdown-button" data-dropdown-toggle="mega-menu-dropdown" className="flex items-center text-[13px] text-[600] text-white hover:text-[#e5bc56] ">
+                            <button onClick={() => toggleDropdown('alloy')} id="mega-menu-dropdown-button" data-dropdown-toggle="mega-menu-dropdown" className="flex items-center text-[13px] text-[600] text-white hover:text-[#e5bc56] ">
                                 ALLOY WHEELS
                                 <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                                     <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
@@ -220,13 +228,68 @@ const Navbar1 = () => {
                             </button>
                         </li>
                         <li>
-                            <button onClick={toggleExteriorDropdown} id="mega-menu-dropdown-button" data-dropdown-toggle="mega-menu-dropdown" className="flex items-center text-[13px] text-[600] text-white hover:text-[#e5bc56] ">
+                            <button onClick={() => toggleDropdown('carcare')} id="mega-menu-dropdown-button" data-dropdown-toggle="mega-menu-dropdown" className="flex items-center text-[13px] text-[600] text-white hover:text-[#e5bc56] ">
+                                CAR CARE
+                                <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
+                                </svg>
+                            </button>
+                            <div id="mega-menu-dropdown" className={`absolute z-10 flex w-[999px] gap-[20px] text-sm bg-white border left-[300px] top-[70px] justify-evenly overflow-scroll h-[300px] ${dropdownOpen === 'carcare' ? 'block' : 'hidden'} md:grid-cols-3 border-gray-700`}>
+                                {subCategoryData && subCategoryData.filter(e => e.category.category_name === 'CAR CARE').map((e, i) =>
+                                    <>
+                                        <div className="p-4 pb-0  md:pb-4 text-white" key={i}>
+                                            <ul className="space-y-4" aria-labelledby="mega-menu-dropdown-button">
+                                                <span className='text-gray-700 font-[600] hover:text-blue-600 py-2'>{e.sub_category_name}</span>
+                                                {superSubCategoryData && superSubCategoryData.filter(ee => ee.subCategory.sub_category_name === e.sub_category_name && ee.category.category_name === 'CAR CARE').map((ee, index) =>
+                                                    <li key={index}>
+                                                        <Link href={`/product/super_sub_category_id=${ee.id}`} className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">
+                                                            {ee.super_sub_category_name}
+                                                        </Link>
+                                                    </li>
+                                                )}
+                                            </ul>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </li>
+                        <li>
+                            <button onClick={() => toggleDropdown('lights')} id="mega-menu-dropdown-button" data-dropdown-toggle="mega-menu-dropdown" className="flex items-center text-[13px] text-[600] text-white hover:text-[#e5bc56] ">
+                                LIGHTS
+                                <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
+                                </svg>
+                            </button>
+                            <div id="mega-menu-dropdown" className={`absolute z-10  w-[999px] gap-[20px] text-sm bg-white border left-[300px] top-[70px]  grid grid-cols-4 gap-4 justify-between overflow-scroll h-[300px] ${dropdownOpen === 'lights' ? 'block' : 'hidden'} border-gray-700`}>
+                                {subCategoryData && subCategoryData.filter(e => e.category.category_name === 'LIGHTS').map((e, i) =>
+                                    <>
+                                        <div className="p-4 pb-0  md:pb-4 text-white" key={i}>
+                                            <ul className="space-y-4 " aria-labelledby="mega-menu-dropdown-button">
+                                            <div className='flex items-center gap-2'>
+                                                <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${e.image_url}`} alt={e.sub_category_name} width={40} height={40} className='rounded-[18px]'/>
+                                                <span className='text-gray-700 font-[600] hover:text-blue-600 py-2 cursor-pointer text-left'><Link href={`/product/sub_category_id=${e.id}`}>{e.sub_category_name}</Link></span>
+                                            </div>
+                                                {superSubCategoryData && superSubCategoryData.filter(ee => ee.subCategory.sub_category_name === e.sub_category_name && ee.category.category_name === 'LIGHTS').map((ee, index) =>
+                                                    <li key={index}>
+                                                        <Link href={`/product/super_sub_category_id=${ee.id}`} className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-500">
+                                                            {ee.super_sub_category_name}
+                                                        </Link>
+                                                    </li>
+                                                )}
+                                            </ul>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </li>
+                        <li>
+                            <button onClick={() => toggleDropdown('exterior')} id="mega-menu-dropdown-button" data-dropdown-toggle="mega-menu-dropdown" className="flex items-center text-[13px] text-[600] text-white hover:text-[#e5bc56] ">
                                 EXTERIOR
                                 <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                                     <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
                                 </svg>
                             </button>
-                            <div id="mega-menu-dropdown" className={`absolute z-10 flex w-[999px] gap-[20px] text-sm bg-white border left-[300px] top-[70px] justify-evenly overflow-scroll h-[300px] ${isExteriorDropdownOpen ? 'block' : 'hidden'} md:grid-cols-3 border-gray-700`}>
+                            <div id="mega-menu-dropdown" className={`absolute z-10 flex w-[999px] gap-[20px] text-sm bg-white border left-[300px] top-[70px] justify-evenly overflow-scroll h-[300px] ${dropdownOpen === 'exterior' ? 'block' : 'hidden'} md:grid-cols-3 border-gray-700`}>
                                 {subCategoryData && subCategoryData.filter(e => e.category.category_name === 'EXTERIOR').map((e, i) =>
                                     <>
                                         <div className="p-4 pb-0  md:pb-4 text-white" key={i}>
@@ -246,13 +309,13 @@ const Navbar1 = () => {
                             </div>
                         </li>
                         <li>
-                            <button onClick={toggleInteriorDropdown} id="mega-menu-dropdown-button" data-dropdown-toggle="mega-menu-dropdown" className="flex items-center text-[13px] text-[600] text-white hover:text-[#e5bc56] ">
+                            <button onClick={() => toggleDropdown('interior')} id="mega-menu-dropdown-button" data-dropdown-toggle="mega-menu-dropdown" className="flex items-center text-[13px] text-[600] text-white hover:text-[#e5bc56] ">
                                 INTERIOR
                                 <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                                     <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
                                 </svg>
                             </button>
-                            <div id="mega-menu-dropdown" className={`absolute z-10 flex w-[999px] gap-[20px] text-sm bg-white border left-[300px] top-[70px] justify-evenly overflow-scroll h-[300px] ${isInteriorDropdownOpen ? 'block' : 'hidden'} md:grid-cols-3 border-gray-700`}>
+                            <div id="mega-menu-dropdown" className={`absolute z-10 flex w-[999px] gap-[20px] text-sm bg-white border left-[300px] top-[70px] justify-evenly overflow-scroll h-[300px] ${dropdownOpen === 'interior' ? 'block' : 'hidden'} md:grid-cols-3 border-gray-700`}>
                                 {subCategoryData && subCategoryData.filter(e => e.category.category_name === 'INTERIOR').map((e, i) =>
                                     <>
                                         <div className="p-4 pb-0  md:pb-4 text-white" key={i}>

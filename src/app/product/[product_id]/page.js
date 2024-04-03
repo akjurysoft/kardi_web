@@ -102,7 +102,7 @@ const Page = ({ params }) => {
                     openSnackbar(res.data.message, 'success')
                     setCartCounter(prev => prev + 1)
                 } else {
-                    openSnackbar('Login Requires', 'error')
+                    openSnackbar('Login Required', 'error')
                     localStorage.removeItem('kardifyuserid')
                     router.push('/login')
                 }
@@ -166,7 +166,7 @@ const Page = ({ params }) => {
                     openSnackbar(res.data.message, 'success')
                     fetchWishListData()
                 } else {
-                    openSnackbar('Login Requires', 'error')
+                    openSnackbar('Login Required', 'error')
                     localStorage.removeItem('kardifyuserid')
                     router.push('/login')
                 }

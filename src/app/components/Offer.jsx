@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import SwiperCore, { Navigation, Pagination } from 'swiper';
+import {  Autoplay } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -43,28 +44,28 @@ const Offer = () => {
         [],
     )
 
-    useEffect(() => {
-        const swiper = new SwiperCore('.swiper-container', {
-            slidesPerView: 1,
-            spaceBetween: 10,
-            loop: false,
-            autoplay: {
-                delay: 6000,
-                disableOnInteraction: true,
-            },
-            breakpoints: {
-                640: {
-                    slidesPerView: 2,
-                },
-                768: {
-                    slidesPerView: 2,
-                },
-                1024: {
-                    slidesPerView: 3,
-                },
-            },
-        });
-    }, []);
+    // useEffect(() => {
+    //     const swiper = new SwiperCore('.swiper-container', {
+    //         slidesPerView: 1,
+    //         spaceBetween: 10,
+    //         loop: false,
+    //         autoplay: {
+    //             delay: 6000,
+    //             disableOnInteraction: true,
+    //         },
+    //         breakpoints: {
+    //             640: {
+    //                 slidesPerView: 2,
+    //             },
+    //             768: {
+    //                 slidesPerView: 2,
+    //             },
+    //             1024: {
+    //                 slidesPerView: 3,
+    //             },
+    //         },
+    //     });
+    // }, []);
     return (
         <>
             <section className="py-[20px]">
@@ -74,11 +75,12 @@ const Offer = () => {
                     </div>
                     <Swiper
                         slidesPerView={1}
+                        modules={[Autoplay]}
+                        autoplay={{ delay: 5000 }}
                         spaceBetween={10}
+                        loop={true}
                         navigation={false}
                         pagination={{ clickable: true }}
-                        autoplay={{ delay: 5000, disableOnInteraction: false }} 
-                        pauseOnMouseEnter={true}
                         breakpoints={{
                             640: {
                                 slidesPerView: 2,

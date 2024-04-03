@@ -16,6 +16,7 @@ import Testimonials from "./components/Testimonials";
 import Footer from "./components/Footer";
 import Navbar1 from "./components/Navbar";
 import Offer from "./components/Offer";
+import TopCategories from "./components/TopCategories";
 
 export default function Home() {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -32,6 +33,8 @@ export default function Home() {
             <Banners />
 
             <Stories />
+
+            <TopCategories/>
 
             <Offer/>
 

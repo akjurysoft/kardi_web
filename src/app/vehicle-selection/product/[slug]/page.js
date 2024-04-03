@@ -134,6 +134,8 @@ const Page = ({ params }) => {
                     setCartCounter(prev => prev + 1)
                 } else {
                     openSnackbar(res.data.message, 'error')
+                    localStorage.removeItem('kardifyuserid')
+                    router.push('/login')
                 }
             })
             .catch(err => {

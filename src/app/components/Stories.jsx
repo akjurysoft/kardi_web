@@ -71,8 +71,8 @@ const Stories = () => {
         <>
             <section className="py-20 bg-black">
                 <div className="container mx-auto">
-                    <div className="title stories-title text-center">
-                        <h1 className='text-[2.5cm] text-white font-bold lg:text-[4cm] xl:text-[5cm]'>Stories</h1>
+                    <div className="title stories-title text-center flex flex-col items-center space-y-[20px]">
+                        <h1 className='text-[2.5cm] text-white font-bold lg:text-[4cm] xl:text-[5cm]'>STORIES</h1>
                         <h3 className="text-[1.5cm] font-bold lg:text-[2.5cm] xl:text-[3cm]">Driving Social Network</h3>
                         <Link href="/stories" className="btn">
                             View Stories
@@ -112,7 +112,7 @@ const Stories = () => {
                                 </>
                                 :
                                 <div className='flex justify-center w-full'>
-                                    <span className='text-center text-[18px] text-white'>No Stories Found</span>
+                                    <span className='text-center text-[18px] text-white font-[600]'>No Stories Found</span>
                                 </div>
                             }
                         </div>
