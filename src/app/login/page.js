@@ -58,7 +58,7 @@ const Page = () => {
                 <div className='container mx-auto'>
                     <div className='flex justify-center'>
                         <div className="w-full sm:w-10/12 md:w-8/12 lg:w-6/12">
-                            <div className="bg-white rounded-lg shadow-lg p-6">
+                            <div className="bg-black text-white rounded-lg shadow-lg p-6 border">
                                 <div className="flex justify-center">
                                     <Image src="/images/logo.png" width={100} height={100} alt="logo" />
                                 </div>

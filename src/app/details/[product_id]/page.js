@@ -4,7 +4,7 @@ import Navbar from '@/app/components/Navbar';
 import { Breadcrumbs, Button, CircularProgress, Rating, TextField } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { BsTruck } from 'react-icons/bs';
 import { AiOutlineFieldTime, AiOutlineMinus, AiOutlinePlus, AiOutlineShoppingCart, AiOutlineStar } from 'react-icons/ai';
 import ImageGallery from "react-image-gallery";
@@ -13,15 +13,17 @@ import Footer from '@/app/components/Footer';
 import { Disclosure, Transition } from '@headlessui/react';
 import axios from '../../../../axios';
 import { useRouter } from 'next/navigation';
+import { useSnackbar } from '@/app/SnackbarProvider';
+import { CartContext } from '@/app/context/CartContext';
 
 
-const Page = ({params}) => {
-
-
+const Page = ({ params }) => {
+    const [cartCounter, setCartCounter] = useContext(CartContext)
+    const { openSnackbar } = useSnackbar();
     const router = useRouter()
 
     const [productData, setProductData] = useState({})
-    const [prodImages , setProdImage] = useState([])
+    const [prodImages, setProdImage] = useState([])
 
     useEffect(() => {
         let unmounted = false;
@@ -41,8 +43,8 @@ const Page = ({params}) => {
                         setProductData(res.data.products[0])
                         if (fetchedProdData && fetchedProdData.images) {
                             const mappedImages = fetchedProdData.images.map((e) => ({
-                                original:`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${e.image_url}`,
-                                thumbnail:`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${e.image_url}`,
+                                original: `${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${e.image_url}`,
+                                thumbnail: `${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${e.image_url}`,
                             }));
                             setProdImage(mappedImages);
                         }
@@ -93,6 +95,85 @@ const Page = ({params}) => {
         setPincode(event.target.value);
     };
 
+
+    // Add to cart logic
+    const addToCart = (data) => {
+        if (!localStorage.getItem('kardifywebtoken')) {
+            openSnackbar('Login Required', 'error')
+            localStorage.removeItem('kardifyuserid')
+            router.push('/login')
+            return
+        }
+
+        axios.post('/api/add-to-cart', {
+            product_id: data.id,
+            quantity: 1
+        }, {
+            headers: {
+                Authorization: localStorage.getItem('kardifywebtoken'),
+            }
+        })
+            .then(res => {
+                if (res.data.status === 'success') {
+                    openSnackbar(res.data.message, 'success')
+                    setCartCounter(prev => prev + 1)
+                } else if (res.data.message === 'Product is already in the cart') {
+                    openSnackbar(res.data.message, 'error')
+                } else {
+                    openSnackbar('Login Required', 'error')
+                    localStorage.removeItem('kardifyuserid')
+                    router.push('/login')
+                }
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }
+
+    const buyNow = (data) => {
+        if (!localStorage.getItem('kardifywebtoken')) {
+            openSnackbar('Login Required', 'error')
+            localStorage.removeItem('kardifyuserid')
+            router.push('/login')
+            return
+        }
+
+        axios.post('/api/add-to-cart', {
+            product_id: data.id,
+            quantity: 1
+        }, {
+            headers: {
+                Authorization: localStorage.getItem('kardifywebtoken'),
+            }
+        })
+            .then(res => {
+                if (res.data.status === 'success') {
+                    openSnackbar(res.data.message, 'success')
+                    setCartCounter(prev => prev + 1)
+                    router.push('/checkout')
+                } else if (res.data.message === 'Product is already in the cart') {
+                    openSnackbar(res.data.message, 'error')
+                } else {
+                    openSnackbar('Login Required', 'error')
+                    localStorage.removeItem('kardifyuserid')
+                    router.push('/login')
+                }
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }
+
+    const convertInRupee = (number) => {
+        console.log(number)
+        return number.toLocaleString('en-IN', {
+            style: 'currency',
+            currency: 'INR',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
     return (
         <>
             <Navbar />
@@ -128,29 +209,74 @@ const Page = ({params}) => {
                                 <Rating name="read-only" value={3} readOnly />
                                 <div className='flex items-center mt-5 space-x-4 sm:space-x-5'>
                                     <div className='flex items-baseline space-x-1'>
-                                        <span className='text-[20px] font-[500]'>₹{productData.default_price}</span>
-                                        <span className='text-[13px] line-through'>₹{productData.default_price}</span>
+                                        {productData.discount_type === "amount" ? (
+                                            <>
+                                                <span className="text-black font-[500] text-[20px]">
+                                                    ₹{(productData.default_price - productData.discount).toFixed(2)}
+                                                </span>
+                                                <span className="text-[#bbb8b8] font-[500] text-[13px] line-through">
+                                                    ₹{(productData.default_price).toFixed(2)}
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span className="text-black font-[500] text-[20px]">
+                                                    ₹{(productData.default_price * (1 - productData.discount / 100)).toFixed(2)}
+                                                </span>
+                                                <span className="text-[#bbb8b8] font-[500] text-[13px] line-through">
+                                                    ₹{productData.default_price}
+                                                </span>
+                                            </>
+                                        )}
+                                        {/* <span className='text-[20px] font-[500]'>₹{productData.default_price}</span>
+                                        <span className='text-[13px] line-through'>₹{productData.default_price}</span> */}
                                     </div>
                                     <div className='h-7 border-l border-slate-300'></div>
                                     <div className='flex items-center text-[20px] font-[500]'>
-                                        {productData.discount}% OFF
+                                        {/* {productData.discount}% OFF */}
+                                        {productData.discount_type === "amount" ? (
+                                            <>
+                                                ₹{productData.discount} OFF
+                                            </>
+                                        ) : (
+                                            <>
+                                                {productData.discount}% OFF
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                                 <span className='text-[12px] font-300'>inclusive of all taxes</span>
                             </div>
 
                             <div>
-                                <h5><span className='text-sm font-medium'>Avalability: <span className='ml-1 text-md font-semibold text-green-600'>In Stock</span></span> </h5>
+                                {/* <h5><span className='text-sm font-medium'>Avalability: <span className='ml-1 text-md font-semibold text-green-600'>{productData.stock}</span></span> </h5> */}
+                                <h5>
+                                    <span className='text-sm font-medium'>
+                                        Availability:
+                                        <span className={`ml-1 text-md font-semibold ${productData.stock < 1 ? 'text-red-600' : 'text-green-600'}`}>
+                                            {productData.stock < 1 ? 'Out of Stock' : productData.stock <= 5 ? `Only ${productData.stock} items left` : `In Stock`}
+                                        </span>
+                                    </span>
+                                </h5>
                             </div>
                             <div className='flex items-center'>
                                 <div className='flex w-full gap-3'>
-                                    <TextField
+                                    {/* <TextField
                                         label="Enter Pincode to check availability"
                                         variant="outlined"
                                         className='w-[80%]'
                                         value={pincode}
                                         onChange={handlePincodeChange}
+                                    /> */}
+
+                                    <input
+                                        className='w-[80%] border p-2 rounded text-[14px]'
+                                        type="text"
+                                        placeholder="Check pincode for delivery availability"
+                                        value={pincode}
+                                        onChange={handlePincodeChange}
                                     />
+
                                     <Button
                                         variant="contained"
                                         className='!bg-black'
@@ -169,7 +295,7 @@ const Page = ({params}) => {
                                 </div>
                             </div>
                             {error && <p className="text-red-500 !mt-1 text-sm">{error}</p>}
-                            <div>
+                            {/* <div>
                                 <div >
                                     <div className='flex justify-between font-medium text-sm'>
                                         <label>
@@ -180,14 +306,14 @@ const Page = ({params}) => {
                                         <div className='relative h-10 sm:h-11 rounded-2xl border flex items-center justify-center text-sm sm:text-base uppercase font-semibold select-none overflow-hidden z-0 cursor-pointer bg-primary-6000 border-primary-6000 text-black hover:bg-primary-6000'>S</div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
                             <div className='flex space-x-3.5'>
-                                <button className={`nc-Button relative h-auto inline-flex items-center justify-center rounded-full transition-colors text-sm sm:text-base font-medium py-3 px-4 sm:py-3.5 sm:px-6  ttnc-ButtonPrimary disabled:bg-opacity-90 bg-slate-900  hover:bg-slate-800 text-slate-50  shadow-xl flex-1 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-6000 `}>
+                                <button onClick={() => buyNow(productData)} className={`nc-Button relative h-auto inline-flex items-center justify-center rounded-full transition-colors text-sm sm:text-base font-medium py-3 px-4 sm:py-3.5 sm:px-6  ttnc-ButtonPrimary disabled:bg-opacity-90 bg-slate-900  hover:bg-slate-800 text-slate-50  shadow-xl flex-1 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-6000 `}>
                                     <AiOutlineShoppingCart />
                                     <span className='ml-3'>Buy Now</span>
                                 </button>
 
-                                <button className={`nc-Button relative h-auto inline-flex items-center justify-center rounded-full transition-colors text-sm sm:text-base font-medium py-3 px-4 sm:py-3.5 sm:px-6  ttnc-ButtonPrimary disabled:bg-opacity-90 bg-slate-900  hover:bg-slate-800 text-slate-50  shadow-xl flex-1 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-6000 `}>
+                                <button onClick={() => addToCart(productData)} className={`nc-Button relative h-auto inline-flex items-center justify-center rounded-full transition-colors text-sm sm:text-base font-medium py-3 px-4 sm:py-3.5 sm:px-6  ttnc-ButtonPrimary disabled:bg-opacity-90 bg-slate-900  hover:bg-slate-800 text-slate-50  shadow-xl flex-1 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-6000 `}>
                                     <AiOutlineShoppingCart />
                                     <span className='ml-3'>Add to cart</span>
                                 </button>
@@ -213,7 +339,8 @@ const Page = ({params}) => {
                                             className="!mt-[0px]"
                                         >
                                             <Disclosure.Panel className="p-2 pt-2  last:pb-0 text-slate-600 text-sm leading-6">
-                                            {productData.product_desc}
+                                            <div dangerouslySetInnerHTML={{ __html: productData.product_desc }}></div>
+                                                {/* {productData.product_desc} */}
                                             </Disclosure.Panel>
                                         </Transition>
                                     </>

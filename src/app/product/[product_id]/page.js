@@ -89,6 +89,13 @@ const Page = ({ params }) => {
 
 
     const addToCart = (data) => {
+        if(!localStorage.getItem('kardifywebtoken')){
+            openSnackbar('Login Required', 'error')
+            localStorage.removeItem('kardifyuserid')
+            router.push('/login')
+            return
+        }
+
         axios.post('/api/add-to-cart', {
             product_id: data.id,
             quantity: 1
@@ -101,7 +108,9 @@ const Page = ({ params }) => {
                 if (res.data.status === 'success') {
                     openSnackbar(res.data.message, 'success')
                     setCartCounter(prev => prev + 1)
-                } else {
+                } else if (res.data.message === 'Product is already in the cart') {
+                    openSnackbar(res.data.message, 'error')
+                }else {
                     openSnackbar('Login Required', 'error')
                     localStorage.removeItem('kardifyuserid')
                     router.push('/login')
@@ -154,6 +163,13 @@ const Page = ({ params }) => {
     )
 
     const addToWish = (data) => {
+        if(!localStorage.getItem('kardifywebtoken')){
+            openSnackbar('Login Required', 'error')
+            localStorage.removeItem('kardifyuserid')
+            router.push('/login')
+            return
+        }
+        
         axios.post('/api/add-to-wishlist', {
             product_id: data.id,
         }, {
