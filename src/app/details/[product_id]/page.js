@@ -179,7 +179,7 @@ const Page = ({ params }) => {
             <Navbar />
 
             <div className="container mx-auto py-[20px]">
-                <Breadcrumbs aria-label="breadcrumb">
+                <Breadcrumbs aria-label="breadcrumb" className='text-sm'>
                     <Link underline="hover" color="inherit" href="/">
                         Home
                     </Link>
@@ -308,12 +308,12 @@ const Page = ({ params }) => {
                                 </div>
                             </div> */}
                             <div className='flex space-x-3.5'>
-                                <button onClick={() => buyNow(productData)} className={`nc-Button relative h-auto inline-flex items-center justify-center rounded-full transition-colors text-sm sm:text-base font-medium py-3 px-4 sm:py-3.5 sm:px-6  ttnc-ButtonPrimary disabled:bg-opacity-90 bg-slate-900  hover:bg-slate-800 text-slate-50  shadow-xl flex-1 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-6000 `}>
+                                <button onClick={() => buyNow(productData)} className={`nc-Button button !capitalize relative h-auto inline-flex items-center justify-center rounded-full transition-colors text-sm sm:text-base font-medium py-3 px-4 sm:py-3.5 sm:px-6  ttnc-ButtonPrimary disabled:bg-opacity-90 bg-slate-900  hover:bg-slate-800 text-slate-50  shadow-xl flex-1 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-6000 `}>
                                     <AiOutlineShoppingCart />
                                     <span className='ml-3'>Buy Now</span>
                                 </button>
 
-                                <button onClick={() => addToCart(productData)} className={`nc-Button relative h-auto inline-flex items-center justify-center rounded-full transition-colors text-sm sm:text-base font-medium py-3 px-4 sm:py-3.5 sm:px-6  ttnc-ButtonPrimary disabled:bg-opacity-90 bg-slate-900  hover:bg-slate-800 text-slate-50  shadow-xl flex-1 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-6000 `}>
+                                <button onClick={() => addToCart(productData)} className={`nc-Button button !capitalize relative h-auto inline-flex items-center justify-center rounded-full transition-colors text-sm sm:text-base font-medium py-3 px-4 sm:py-3.5 sm:px-6  ttnc-ButtonPrimary disabled:bg-opacity-90 bg-slate-900  hover:bg-slate-800 text-slate-50  shadow-xl flex-1 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-6000 `}>
                                     <AiOutlineShoppingCart />
                                     <span className='ml-3'>Add to cart</span>
                                 </button>

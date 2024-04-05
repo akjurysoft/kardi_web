@@ -66,18 +66,18 @@
   display: flex;
   justify-content: center;
   text-transform: uppercase;
-  font-weight: 500;
+  font-weight: 700;
   width: 100%;
   font-size: 14px;
   padding: 16px 25px;
-  background-color: #222;
-  border-color: #222;
-  color: #fff;
+  background-color: #face66 !important;
+  border-color: #face66;
+  color: black;
   cursor: pointer;
 }
 
 .button:hover {
-  background-color: #333;
+  background-color: #dea520 !important;
   border-color: #333;
 }
 

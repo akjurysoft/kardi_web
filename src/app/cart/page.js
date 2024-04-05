@@ -300,7 +300,8 @@ const Page = () => {
                                     <span>₹{(totalPrice + (totalPrice * calculateGST(cartData) / 100)).toFixed(2)}</span>
                                 </div>
                             </div>
-                            <span className='nc-Button cursor-pointer relative h-auto inline-flex items-center justify-center rounded-full transition-colors text-sm sm:text-base font-medium py-3 px-4 sm:py-3.5 sm:px-6  ttnc-ButtonPrimary disabled:bg-opacity-90 bg-slate-900 hover:bg-slate-800 text-slate-50  shadow-xl mt-8 w-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-6000' onClick={handleCheckoutButton}>Checkout</span>
+                            <span className='nc-Button button cursor-pointer relative h-auto inline-flex items-center justify-center rounded-full transition-colors text-sm sm:text-base font-medium py-3 px-4 sm:py-3.5 sm:px-6  ttnc-ButtonPrimary disabled:bg-opacity-90 bg-slate-900 hover:bg-slate-800 text-slate-50  shadow-xl mt-8 w-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-6000' onClick={handleCheckoutButton}>Checkout</span>
+                            {/* <span className='button' onClick={handleCheckoutButton}>Checkout</span> */}
                         </div>
                     </div>
                 </div>

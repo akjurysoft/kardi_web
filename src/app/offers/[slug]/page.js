@@ -240,7 +240,7 @@ const Page = ({ params }) => {
             <Navbar1 />
 
             <div className="container mx-auto py-[20px]">
-                <Breadcrumbs aria-label="breadcrumb">
+                <Breadcrumbs aria-label="breadcrumb" className="text-sm">
                     <Link underline="hover" color="inherit" href="/">
                         Home
                     </Link>
@@ -348,7 +348,7 @@ const Page = ({ params }) => {
                                                         </>
                                                     )}
                                                 </div>
-                                                <div className="flex items-center space-x-2 justify-center bg-black hover:opacity-80 cursor-pointer py-[12px] px-[15px] text-white rounded-full" onClick={() => addToCart(product)}>
+                                                <div className="flex button items-center space-x-2 justify-center bg-black hover:opacity-80 cursor-pointer py-[12px] px-[15px] text-white rounded-full" onClick={() => addToCart(product)}>
                                                     <FaShoppingCart />
                                                     <div className=" bottom-0  space-x-1.5 rtl:space-x-reverse flex justify-center opacity-1" >
                                                         Add to Cart

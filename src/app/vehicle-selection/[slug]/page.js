@@ -132,7 +132,7 @@ const Page = ({ params }) => {
             <Navbar1 />
             <section className='pt-[40px] pb-[70px] relative'>
                 <div className='container mx-auto'>
-                    <Breadcrumbs aria-label="breadcrumb" className='py-[20px]'>
+                    <Breadcrumbs aria-label="breadcrumb" className='py-[20px] text-sm'>
                         <Link underline="hover" color="inherit" href="/">
                             Home
                         </Link>
@@ -147,7 +147,7 @@ const Page = ({ params }) => {
                     </Breadcrumbs>
                     <div className='flex justify-center'>
                         <div className="w-full sm:w-10/12 md:w-8/12 lg:w-6/12">
-                            <div className="bg-white rounded-lg shadow-lg p-6">
+                            <div className="bg-black text-white rounded-lg shadow-lg p-6">
                                 <div className="flex justify-center">
                                     <Image src="/images/logo.png" width={100} height={100} alt="logo" />
                                 </div>
@@ -157,7 +157,7 @@ const Page = ({ params }) => {
                                 <div className='mt-4'>
                                     <div className='mb-4 flex flex-col space-y-1'>
                                         <label htmlFor="mobile" className='text-sm'>Choose Car Make/Brand</label>
-                                        <select name='brand' id='brand' onChange={handleBrandChange}>
+                                        <select name='brand' className='bg-transparent text-white' id='brand' onChange={handleBrandChange}>
                                             <option>Choose Car</option>
                                             {brandData && brandData.map((brand, index) => (
                                                 <option key={index} value={brand.id}>{brand.brand_name}</option>
@@ -168,7 +168,7 @@ const Page = ({ params }) => {
                                 <div className='mt-4'>
                                     <div className='mb-4 flex flex-col space-y-1'>
                                         <label htmlFor="password" className='text-sm'>Choose Car Model</label>
-                                        <select name='model' id='model' onChange={handleModelChange} value={selectedModel}>
+                                        <select name='model' id='model' className='bg-transparent text-white' onChange={handleModelChange} value={selectedModel}>
                                             <option>Choose Car Model</option>
                                             {carModels && carModels.map((model, index) => (
                                                 <option key={index} value={model.id}>{model.model_name}</option>
@@ -179,7 +179,7 @@ const Page = ({ params }) => {
                                 <div className='mt-4'>
                                     <div className='mb-4 flex flex-col space-y-1'>
                                         <label htmlFor="password" className='text-sm'>Choose Year</label>
-                                        <select name='year' id='year' onChange={handleYearChange} value={year}>
+                                        <select name='year' id='year' className='bg-transparent text-white' onChange={handleYearChange} value={year}>
                                             <option value=''>Choose Year</option>
                                             {carYears && carYears.map((year, index) => (
                                                 <option key={index} value={year}>{year}</option>
