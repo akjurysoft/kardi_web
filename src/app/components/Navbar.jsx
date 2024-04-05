@@ -12,48 +12,7 @@ import { CartContext } from '../context/CartContext';
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const categories = [
-    {
-        id: 1,
-        name: 'Category 1',
-        subcategories: [
-            {
-                id: 11,
-                name: 'Subcategory 1',
-                subsubcategories: [
-                    {
-                        id: 111,
-                        name: 'Subsubcategory 1'
-                    },
-                    {
-                        id: 112,
-                        name: 'Subsubcategory 2'
-                    }
-                ]
-            },
-            {
-                id: 12,
-                name: 'Subcategory 2'
-            }
-        ]
-    },
-    {
-        id: 2,
-        name: 'Category 2',
-        subcategories: [
-            {
-                id: 21,
-                name: 'Subcategory 3',
-                subsubcategories: ['Subsubcategory 5', 'Subsubcategory 6']
-            },
-            {
-                id: 22,
-                name: 'Subcategory 4',
-                subsubcategories: ['Subsubcategory 7', 'Subsubcategory 8']
-            }
-        ]
-    }
-];
+
 const Navbar1 = () => {
 
     const [cartCounter, setCartCounter] = useContext(CartContext)
@@ -678,7 +637,7 @@ const Navbar1 = () => {
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="Select Product Here"
+                                    label="Search"
                                     className='w-full !text-[14px]'
                                     variant="outlined"
                                     fullWidth
