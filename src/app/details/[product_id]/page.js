@@ -22,6 +22,8 @@ const Page = ({ params }) => {
     const { openSnackbar } = useSnackbar();
     const router = useRouter()
 
+
+
     const [productData, setProductData] = useState({})
     const [prodImages, setProdImage] = useState([])
 
@@ -71,29 +73,101 @@ const Page = ({ params }) => {
         showNav: false,
     };
 
+
+    // ---------------------------- Shiprocket token & pincode setup --------------------------------------------------
+    const [shiprocketToken, setShiprocketToken] = useState(null)
+    useEffect(() => {
+        const fetchShiprocketToken = async () => {
+            try {
+                const response = await axios.get(`/api/get-token?email=${process.env.NEXT_PUBLIC_SHIPROCKET_EMAIL}&password=${process.env.NEXT_PUBLIC_SHIPROCKET_PASSWORD}`, {
+                    headers: {
+                        Authorization: localStorage.getItem('kardifywebtoken'),
+                    }
+                });
+                if (response.data.code === 200) {
+                    setShiprocketToken(response.data.token);
+                } else {
+                    openSnackbar(response.data.message, 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                if (error.response && error.response.data.statusCode === 400) {
+                    openSnackbar(error.response.data.message, 'error');
+                }
+            }
+        }
+        fetchShiprocketToken()
+    }, [])
+
     const [pincode, setPincode] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
+    const [getAllShippingCharge, setGetAllShippingCharge] = useState([])
     const handleButtonClick = () => {
         if (pincode.length !== 6 || isNaN(pincode)) {
             setError('Invalid pincode. Pincode must be a 6-digit number.');
             return;
         }
+
+        setError('');
+        setShippingData({})
         setIsLoading(true);
-        setTimeout(() => {
-            if (pincode === '123456') {
-                setError('');
-            } else {
-                setError('Invalid pincode');
-            }
+        // setTimeout(() => {
+        //     if (pincode === '123456') {
+        //         setError('');
+        //     } else {
+        //         setError('Invalid pincode');
+        //     }
+        //     setIsLoading(false);
+        // }, 2000);
+
+        if (shiprocketToken && pincode) {
+            axios.post(`/api/get-shipping-price`, {
+                pickup_pincode: process.env.NEXT_PUBLIC_SHIPROCKET_PICKUP_PINCODE,
+                delivery_pincode: pincode,
+                COD: false,
+                weight: '2',
+                token: shiprocketToken
+            })
+                .then(res => {
+                    if (res.data.code === 200) {
+                        setGetAllShippingCharge(res.data.data);
+                    } else if (res.data.status === 'error') {
+                        setError(res.data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    if (err.response && err.response.data.statusCode === 400) {
+                        openSnackbar(err.response.data.message, 'error');
+                    }
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
+        } else {
+            setError('Please enter a valid pincode');
             setIsLoading(false);
-        }, 2000);
+        }
     };
+
+    const [shippingData, setShippingData] = useState({});
+    useEffect(() => {
+        const lowestShippingOption = getAllShippingCharge.reduce((minShippingOption, shippingOption) => {
+            return shippingOption.charge < minShippingOption.charge ? shippingOption : minShippingOption;
+        }, getAllShippingCharge[0]);
+
+        setShippingData(lowestShippingOption);
+    }, [getAllShippingCharge]);
 
     const handlePincodeChange = (event) => {
         setPincode(event.target.value);
+        setShippingData({})
     };
+
+
+    // ---------------------------- Pincode setup end --------------------------------------------------
 
 
     // Add to cart logic
@@ -197,7 +271,7 @@ const Page = ({ params }) => {
             <div className='container mx-auto py-[50px]'>
                 <div className='lg:flex'>
                     <div className='w-full lg:w-[50%]'>
-                        <div className='gallery-container'>
+                        <div className='gallery-container sticky top-[100px]'>
                             <ImageGallery items={prodImages} {...galleryOptions} />
                         </div>
                     </div>
@@ -228,12 +302,9 @@ const Page = ({ params }) => {
                                                 </span>
                                             </>
                                         )}
-                                        {/* <span className='text-[20px] font-[500]'>₹{productData.default_price}</span>
-                                        <span className='text-[13px] line-through'>₹{productData.default_price}</span> */}
                                     </div>
                                     <div className='h-7 border-l border-slate-300'></div>
                                     <div className='flex items-center text-[20px] font-[500]'>
-                                        {/* {productData.discount}% OFF */}
                                         {productData.discount_type === "amount" ? (
                                             <>
                                                 ₹{productData.discount} OFF
@@ -246,6 +317,15 @@ const Page = ({ params }) => {
                                     </div>
                                 </div>
                                 <span className='text-[12px] font-300'>inclusive of all taxes</span>
+                                {productData.discount_type === "amount" ? (
+                                    productData.default_price - productData.discount > 1000 && (
+                                        <p className="text-green-500 mt-2 text-sm font-[500]">Woohoo! Free shipping available!!</p>
+                                    )
+                                ) : (
+                                    (productData.default_price * (1 - productData.discount / 100)) > 1000 && (
+                                        <p className="text-green-500 mt-2 text-sm font-[500]">Woohoo! Free shipping available!!</p>
+                                    )
+                                )}
                             </div>
 
                             <div>
@@ -295,6 +375,7 @@ const Page = ({ params }) => {
                                 </div>
                             </div>
                             {error && <p className="text-red-500 !mt-1 text-sm">{error}</p>}
+                            {shippingData && Object.keys(shippingData).length > 0 && <p className="text-green-500 !mt-1 text-sm font-[500]">Shipping available for pincode {pincode}.  {shippingData.city} , {shippingData.state}.</p>}
                             {/* <div>
                                 <div >
                                     <div className='flex justify-between font-medium text-sm'>
@@ -338,8 +419,8 @@ const Page = ({ params }) => {
                                             leaveTo="transform scale-95 opacity-0"
                                             className="!mt-[0px]"
                                         >
-                                            <Disclosure.Panel className="p-2 pt-2  last:pb-0 text-slate-600 text-sm leading-6">
-                                            <div dangerouslySetInnerHTML={{ __html: productData.product_desc }}></div>
+                                            <Disclosure.Panel className="p-2 pt-2  last:pb-0 text-slate-600 text-sm leading-6 description-tab">
+                                                <div dangerouslySetInnerHTML={{ __html: productData.product_desc }}></div>
                                                 {/* {productData.product_desc} */}
                                             </Disclosure.Panel>
                                         </Transition>

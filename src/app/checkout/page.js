@@ -2,7 +2,7 @@
 import { Disclosure, RadioGroup, Transition } from '@headlessui/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { FaAngleRight, FaRegEdit, FaTrash } from 'react-icons/fa'
 import { useSnackbar } from '../SnackbarProvider'
 import axios from '../../../axios'
@@ -17,6 +17,7 @@ import Footer from '../components/Footer'
 import { styled } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import Navbar1 from '../components/Navbar'
+import { CartContext } from '../context/CartContext'
 
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -32,6 +33,7 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 const Page = () => {
     const router = useRouter()
     const { openSnackbar } = useSnackbar()
+    const [cartCounter, setCartCounter] = useContext(CartContext)
 
 
     function formatDate(apiTimestamp) {
@@ -116,48 +118,48 @@ const Page = () => {
         setSelected(address);
     };
 
-        const fetchAddressData = async () => {
-            try {
-                const response = await axios.get(`/api/get-all-addresses`, {
-                    headers: {
-                        Authorization: localStorage.getItem('kardifywebtoken'),
-                    }
-                });
+    const fetchAddressData = async () => {
+        try {
+            const response = await axios.get(`/api/get-all-addresses`, {
+                headers: {
+                    Authorization: localStorage.getItem('kardifywebtoken'),
+                }
+            });
 
-                if (response.data.code === 200) {
-                    setAddressData(response.data.addresses);
-                    if (response.data.addresses.length > 0) {
-                        setSelected(response.data.addresses[0].id);
-                    }
-                } else if (response.data.message === 'Session expired') {
-                    openSnackbar(response.data.message, 'error');
-                    localStorage.removeItem('kardifyuserid')
-                    router.push('/login');
+            if (response.data.code === 200) {
+                setAddressData(response.data.addresses);
+                if (response.data.addresses.length > 0) {
+                    setSelected(response.data.addresses[0].id);
                 }
-            } catch (error) {
-                console.error(error);
-                if (error.response && error.response.data.statusCode === 400) {
-                    openSnackbar(error.response.data.message, 'error');
-                }
+            } else if (response.data.message === 'Session expired') {
+                openSnackbar(response.data.message, 'error');
+                localStorage.removeItem('kardifyuserid')
+                router.push('/login');
             }
-        };
+        } catch (error) {
+            console.error(error);
+            if (error.response && error.response.data.statusCode === 400) {
+                openSnackbar(error.response.data.message, 'error');
+            }
+        }
+    };
 
 
 
 
 
-    const [getAddressData , setGetAddressData] = useState({
-        fullname:'',
-        add_type:'',
-        phone:'',
-        add1:'',
-        add2:'',
-        city:'',
-        state:'',
-        country:'',
-        zipcode:'',
-        landmark:'',
-        area:'',
+    const [getAddressData, setGetAddressData] = useState({
+        fullname: '',
+        add_type: '',
+        phone: '',
+        add1: '',
+        add2: '',
+        city: '',
+        state: '',
+        country: '',
+        zipcode: '',
+        landmark: '',
+        area: '',
     })
     const getData = (e) => {
         const { value, name } = e.target;
@@ -170,17 +172,17 @@ const Page = () => {
 
     const reset = () => {
         setGetAddressData({
-            fullname:'',
-            add_type:'',
-            phone:'',
-            add1:'',
-            add2:'',
-            city:'',
-            state:'',
-            country:'',
-            zipcode:'',
-            landmark:'',
-            area:'',
+            fullname: '',
+            add_type: '',
+            phone: '',
+            add1: '',
+            add2: '',
+            city: '',
+            state: '',
+            country: '',
+            zipcode: '',
+            landmark: '',
+            area: '',
         })
 
         document.getElementById('fullname').value = ''
@@ -195,7 +197,7 @@ const Page = () => {
     }
 
     const handleAddressSubmit = () => {
-        axios.post('/api/add-addresses',{
+        axios.post('/api/add-addresses', {
             fullname: getAddressData.fullname,
             add_type: getAddressData.add_type,
             mobile: getAddressData.phone,
@@ -207,21 +209,27 @@ const Page = () => {
             pincode: getAddressData.zipcode,
             landmark: getAddressData.landmark,
             area: getAddressData.area
-        },{
+        }, {
             headers: {
                 Authorization: localStorage.getItem('kardifywebtoken'),
             }
         })
-        .then(res => {
-            if (res.data.code === 200) {
-                openSnackbar(res.data.message, 'success');
-                reset()
-                fetchAddressData();
-            } else if (res.data.message === 'Session expired') {
-                localStorage.removeItem('kardifyuserid')
-                router.push('/login')
-            }
-        })
+            .then(res => {
+                if (res.data.code === 200) {
+                    openSnackbar(res.data.message, 'success');
+                    fetchAddressData();
+                    reset()
+                } else if (res.data.message === 'Session expired') {
+                    localStorage.removeItem('kardifyuserid')
+                    router.push('/login')
+                }
+            })
+            .catch(err => {
+                console.log(err)
+                if (err.response && err.response.data.statusCode === 400) {
+                    openSnackbar(err.response.data.message, 'error');
+                }
+            })
     }
 
 
@@ -313,17 +321,35 @@ const Page = () => {
     };
 
 
+    const handleRemoveProduct = (data) => {
+        axios.post('/api/remove-from-cart', {
+            product_id: data.id,
+        }, {
+            headers: {
+                Authorization: localStorage.getItem('kardifywebtoken'),
+            }
+        })
+            .then(res => {
+                if (res.data.status === 'success') {
+                    openSnackbar(res.data.message, 'success')
+                    setCartCounter(prev => prev - 1)
+                    fetchCartData()
+                } else {
+                    openSnackbar(res.data.message, 'error')
+                }
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }
+
     // -------------------------shiprocket data------------------------
 
-    const [shiprocketToken, setShiprocketToken] = useState()
+    const [shiprocketToken, setShiprocketToken] = useState(null)
     useEffect(() => {
         const fetchShiprocketToken = async () => {
             try {
-                const response = await axios.get(`/api/get-token?email=${process.env.NEXT_PUBLIC_SHIPROCKET_EMAIL}&password=${process.env.NEXT_PUBLIC_SHIPROCKET_PASSWORD}`, {
-                    headers: {
-                        Authorization: localStorage.getItem('kardifywebtoken'),
-                    }
-                });
+                const response = await axios.get(`/api/get-token?email=${process.env.NEXT_PUBLIC_SHIPROCKET_EMAIL}&password=${process.env.NEXT_PUBLIC_SHIPROCKET_PASSWORD}`, {});
                 if (response.data.code === 200) {
                     setShiprocketToken(response.data.token);
                 } else if (response.data.message === 'Session expired') {
@@ -340,22 +366,17 @@ const Page = () => {
         fetchShiprocketToken()
     }, [])
 
-
     const [getAllShippingCharge, setGetAllShippingCharge] = useState([])
     useEffect(() => {
         const fetchShippingCharge = async () => {
             try {
                 if (shiprocketToken && addressDetails.zipcode) {
                     const response = await axios.post(`/api/get-shipping-price`, {
-                        pickup_pincode: '560077',
+                        pickup_pincode: process.env.NEXT_PUBLIC_SHIPROCKET_PICKUP_PINCODE,
                         delivery_pincode: addressDetails.zipcode,
                         COD: false,
-                        weight: String(totalWeight),
+                        weight: '2',
                         token: shiprocketToken
-                    }, {
-                        headers: {
-                            Authorization: localStorage.getItem('kardifywebtoken'),
-                        }
                     });
 
                     if (response.data.code === 200) {
@@ -377,12 +398,20 @@ const Page = () => {
     }, [addressDetails, shiprocketToken, totalWeight]);
 
     const [shippingCharge, setShippingCharge] = useState(0);
+    const [shippingData, setShippingData] = useState({})
 
     useEffect(() => {
         const lowestShippingCharge = getAllShippingCharge.reduce((minCharge, shippingOption) => {
             return shippingOption.charge < minCharge ? shippingOption.charge : minCharge;
         }, Infinity);
-        if (totalPrice + (totalPrice * calculateGST(cartData) / 100) > 1000) {
+
+        const lowestShippingData = getAllShippingCharge.reduce((minCharge, shippingOption) => {
+            return shippingOption.charge < minCharge ? shippingOption.charge : minCharge;
+        }, getAllShippingCharge[0]);
+
+        setShippingData(lowestShippingData)
+
+        if (totalPrice > 1000) {
             setShippingCharge(0);
         } else if (shippingOption === 1) {
             setShippingCharge(0);
@@ -471,27 +500,27 @@ const Page = () => {
         };
     }, []);
 
-    let totalAmountWithoutCoupon = totalPrice + (totalPrice * calculateGST(cartData) / 100) + shippingCharge;
+    let totalAmountWithoutCoupon = totalPrice + shippingCharge;
     if (appliedCoupon) {
         totalAmountWithoutCoupon -= parseFloat(couponAmount);
     }
     const formattedTotalAmount = parseFloat(totalAmountWithoutCoupon).toFixed(2);
-    console.log( formattedTotalAmount)
+    console.log(formattedTotalAmount)
 
     const placeOrder = () => {
-        if(role === 'CUSTOMER'){
+        if (role === 'CUSTOMER') {
             if (!selected) {
                 openSnackbar('Please select address', 'error')
                 return
             }
-    
+
             const productData = cartData.map(cartItem => ({
                 product_id: cartItem.product_id,
                 quantity: cartItem.quantity
             }));
-    
+
             const couponId = appliedCoupon ? appliedCoupon.id : null;
-    
+
             const razorpay = new window.Razorpay({
                 key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
                 currency: 'INR',
@@ -537,16 +566,16 @@ const Page = () => {
                     name: addressDetails.fullname,
                 },
             });
-    
+
             razorpay.open();
-        }else if(role === 'DEALER'){
+        } else if (role === 'DEALER') {
             const productData = cartData.map(cartItem => ({
                 product_id: cartItem.product_id,
                 quantity: cartItem.quantity
             }));
-    
+
             const couponId = appliedCoupon ? appliedCoupon.id : null;
-    
+
             const razorpay = new window.Razorpay({
                 key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
                 currency: 'INR',
@@ -676,179 +705,187 @@ const Page = () => {
                             </div>
                         </div>
                         :
-                        <div className='flex-1'>
-                            <div className='space-y-8'>
-                                <div className='w-full rounded-2xl space-y-2.5'>
-                                    <RadioGroup className='space-y-5 pb-[20px]' value={selected} onChange={(id) => handleAddressChange(id)}>
-                                        <RadioGroup.Label className="space-y-10 font-[600]">Select Address</RadioGroup.Label>
-                                        <div className="space-y-2 space-y-scroll p-[10px]  max-h-30">
-                                            {addressData && addressData.map((e, i) => (
-                                                <RadioGroup.Option
-                                                    key={i}
-                                                    value={e.id}
-                                                    className={({ active, checked }) =>
-                                                        `${active
-                                                            ? 'ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-[#cfaa4c]'
-                                                            : ''
-                                                        }
-                                            ${checked ? 'bg-[#cfaa4c] bg-opacity-75 text-white' : 'bg-white'
-                                                        }
-                                                relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none`
-                                                    }
-                                                >
-                                                    {({ active, checked }) => (
-                                                        <>
-                                                            <div className="flex w-full items-center justify-between">
-                                                                <div className="flex items-center">
-                                                                    <div className="text-sm">
-                                                                        <RadioGroup.Label
-                                                                            as="p"
-                                                                            className={`font-medium  ${checked ? 'text-white' : 'text-gray-900'
-                                                                                }`}
-                                                                        >
-                                                                            <span className='uppercase font-bold'>{e.add_type}</span><br />
-                                                                        </RadioGroup.Label>
-                                                                        <RadioGroup.Description
-                                                                            as="span"
-                                                                            className={`inline ${checked ? 'text-[#fff] font-[600]' : 'text-gray-500'
-                                                                                }`}
-                                                                        >
-                                                                            <span >
-                                                                                {e.fullname}
-                                                                            </span> <br />
-                                                                            <span>{e.mobile}</span><br />
-                                                                            <span>{e.add1}</span> , <span>{e.add2}</span> <br />
-                                                                            <span>{e.area}</span> , <span>{e.landmark}</span> , <span>{e.city}</span> <br />
-                                                                            <span>{e.state}</span> , <span>{e.zipcode}</span>
+                        <>
 
-                                                                        </RadioGroup.Description>
+                            <div className='flex-1'>
+                                {addressData && addressData.length > 0 ?
+                                    <div className='space-y-8'>
+                                        <div className='w-full rounded-2xl space-y-2.5'>
+                                            <RadioGroup className='space-y-5 pb-[20px]' value={selected} onChange={(id) => handleAddressChange(id)}>
+                                                <RadioGroup.Label className="space-y-10 font-[600]">Select Address</RadioGroup.Label>
+                                                <div className="space-y-2 space-y-scroll p-[10px]  max-h-30">
+                                                    {addressData && addressData.map((e, i) => (
+                                                        <RadioGroup.Option
+                                                            key={i}
+                                                            value={e.id}
+                                                            className={({ active, checked }) =>
+                                                                `${active
+                                                                    ? 'ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-[#cfaa4c]'
+                                                                    : ''
+                                                                }
+                                            ${checked ? 'bg-[#cfaa4c] bg-opacity-75 text-black' : 'bg-white'
+                                                                }
+                                                relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none`
+                                                            }
+                                                        >
+                                                            {({ active, checked }) => (
+                                                                <>
+                                                                    <div className="flex w-full items-center justify-between">
+                                                                        <div className="flex items-center">
+                                                                            <div className="text-sm">
+                                                                                <RadioGroup.Label
+                                                                                    as="p"
+                                                                                    className={`font-medium  ${checked ? 'text-black' : 'text-gray-900'
+                                                                                        }`}
+                                                                                >
+                                                                                    <span className='uppercase font-bold'>{e.add_type}</span><br />
+                                                                                </RadioGroup.Label>
+                                                                                <RadioGroup.Description
+                                                                                    as="span"
+                                                                                    className={`inline ${checked ? 'text-slate-600 font-[600]' : 'text-gray-500'
+                                                                                        }`}
+                                                                                >
+                                                                                    <span >
+                                                                                        {e.fullname}
+                                                                                    </span> <br />
+                                                                                    <span>{e.mobile}</span><br />
+                                                                                    <span>{e.add1}</span> , <span>{e.add2}</span> <br />
+                                                                                    <span>{e.area}</span> , <span>{e.landmark}</span> , <span>{e.city}</span> <br />
+                                                                                    <span>{e.state}</span> , <span>{e.zipcode}</span>
+
+                                                                                </RadioGroup.Description>
+                                                                            </div>
+                                                                        </div>
+                                                                        {checked && (
+                                                                            <div className="shrink-0 text-white flex items-center gap-[10px]">
+                                                                                <FaRegEdit className='z-9 text-[15px] opacity-70 hover:opacity-90' />
+                                                                                <FaTrash className='z-9 text-[15px] opacity-70 hover:opacity-90' />
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </>
+                                                            )}
+                                                        </RadioGroup.Option>
+                                                    ))}
+                                                </div>
+
+                                            </RadioGroup>
+                                        </div>
+                                    </div>
+                                    :
+                                    <p className='text-center py-10'>No address found</p>
+                                }
+                                <Disclosure defaultOpen={true}>
+                                    {({ open }) => (
+                                        <>
+                                            <Disclosure.Button className="flex  items-center justify-between w-full px-4 py-2 font-medium text-left bg-slate-100/80 hover:bg-slate-200/60   rounded-lg focus:outline-none focus-visible:ring focus-visible:ring-slate-500 focus-visible:ring-opacity-75 ">
+                                                <span>Add Shipping Address</span>
+                                                {open ? <AiOutlineMinus /> : <AiOutlinePlus />}
+                                            </Disclosure.Button>
+                                            <Transition
+                                                enter="transition duration-100 ease-out"
+                                                enterFrom="transform scale-95 opacity-0"
+                                                enterTo="transform scale-100 opacity-100"
+                                                leave="transition duration-75 ease-out"
+                                                leaveFrom="transform scale-100 opacity-100"
+                                                leaveTo="transform scale-95 opacity-0"
+                                            >
+                                                <Disclosure.Panel className="p-4 pt-3 border border-slate-200 last:pb-0 text-slate-600 text-sm leading-6">
+                                                    <div className=' px-6 py-7 space-y-4 sm:space-y-6 block'>
+
+                                                        <>
+                                                            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-3'>
+                                                                <div>
+                                                                    <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>Full Name *</label>
+                                                                    <input id='fullname' type='text' name="fullname" onChange={getData} className='block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white   disabled:bg-neutral-200  rounded-2xl text-sm font-normal h-11 px-4 py-3 mt-1.5' />
+                                                                </div>
+                                                                <div className='space-y-2'>
+                                                                    <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>Phone *</label>
+                                                                    <input id='phone' type='text' name="phone" onChange={getData} className='block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white   disabled:bg-neutral-200  rounded-2xl text-sm font-normal h-11 px-4 py-3 mt-1.5' />
+
+                                                                </div>
+                                                            </div>
+                                                            <div className='sm:flex space-y-4 sm:space-y-0 sm:space-x-3'>
+                                                                <div className='flex-1'>
+                                                                    <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>Building name / flat no.</label>
+                                                                    <input id='add1' type='text' name="add1" onChange={getData} className='block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white   disabled:bg-neutral-200  rounded-2xl text-sm font-normal h-11 px-4 py-3 mt-1.5' />
+                                                                </div>
+                                                                <div className='sm:w-1/3'>
+                                                                    <label className="nc-Label text-base font-medium text-neutral-900 text-sm">Landmark</label>
+                                                                    <input id='landmark' type='text' name="landmark" onChange={getData} className='block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white   disabled:bg-neutral-200  rounded-2xl text-sm font-normal h-11 px-4 py-3 mt-1.5' />
+                                                                </div>
+                                                            </div>
+
+                                                            <div className='grid grid-cols-1 gap-4 sm:gap-3'>
+                                                                <div>
+                                                                    <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>Area *</label>
+                                                                    <input id='area' type='text' name="area" onChange={getData} className='block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white   disabled:bg-neutral-200  rounded-2xl text-sm font-normal h-11 px-4 py-3 mt-1.5' />
+                                                                </div>
+                                                            </div>
+
+                                                            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-3'>
+                                                                <div>
+                                                                    <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>City *</label>
+                                                                    <input id='city' type='text' name="city" onChange={getData} className='block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white   disabled:bg-neutral-200  rounded-2xl text-sm font-normal h-11 px-4 py-3 mt-1.5' />
+                                                                </div>
+                                                                <div>
+                                                                    <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>State *</label>
+                                                                    <input id='state' type='text' name="state" onChange={getData} className='block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white   disabled:bg-neutral-200  rounded-2xl text-sm font-normal h-11 px-4 py-3 mt-1.5' />
+                                                                </div>
+                                                            </div>
+
+                                                            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-3'>
+                                                                <div>
+                                                                    <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>Pincode *</label>
+                                                                    <input id='zipcode' type='text' name="zipcode" onChange={getData} className='block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white   disabled:bg-neutral-200  rounded-2xl text-sm font-normal h-11 px-4 py-3 mt-1.5' />
+                                                                </div>
+                                                                <div>
+                                                                    <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>Country *</label>
+                                                                    <select name="country" id="country" onChange={getData} className='nc-Select h-11 mt-1.5 block w-full text-sm rounded-2xl border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white'>
+                                                                        <option>Select</option>
+                                                                        <option value='India'>India</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+                                                            <div>
+                                                                <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>Address type</label>
+                                                                <div className='mt-1.5 grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-3'>
+                                                                    <div className='flex items-center text-sm sm:text-base '>
+                                                                        <input id="Address-type-home" name="add_type" value='home' type="radio" onChange={getData} className={`focus:ring-action-primary text-primary-500 rounded-full border-slate-400 hover:border-slate-700 bg-transparent focus:ring-primary-500 w-6 h-6 `} />
+                                                                        <label htmlFor='Address-type-home' className='pl-2.5 sm:pl-3 block text-slate-900 select-none'>
+                                                                            <span className='text-sm font-medium'>Home</span>
+                                                                        </label>
+                                                                    </div>
+                                                                    <div className='flex items-center text-sm sm:text-base '>
+                                                                        <input id="Address-type-office" name="add_type" value='office' type="radio" onChange={getData} className={`focus:ring-action-primary text-primary-500 rounded-full border-slate-400 hover:border-slate-700 bg-transparent focus:ring-primary-500 w-6 h-6 `} />
+                                                                        <label htmlFor='Address-type-office' className='pl-2.5 sm:pl-3 block text-slate-900 select-none'>
+                                                                            <span className='text-sm font-medium'>Office</span>
+                                                                        </label>
+                                                                    </div>
+                                                                    <div className='flex items-center text-sm sm:text-base '>
+                                                                        <input id="Address-type-other" name="add_type" value='other' type="radio" onChange={getData} className='focus:ring-action-primary text-primary-500 rounded-full border-slate-400 hover:border-slate-700 bg-transparent focus:ring-primary-500 w-6 h-6' />
+                                                                        <label htmlFor="Address-type-other" className='pl-2.5 sm:pl-3 block text-slate-900 select-none'>
+                                                                            <span className='text-sm font-medium'>Others</span>
+                                                                        </label>
                                                                     </div>
                                                                 </div>
-                                                                {checked && (
-                                                                    <div className="shrink-0 text-white flex items-center gap-[10px]">
-                                                                        <FaRegEdit className='z-9 text-[15px] opacity-70 hover:opacity-90' />
-                                                                        <FaTrash className='z-9 text-[15px] opacity-70 hover:opacity-90' />
-                                                                    </div>
-                                                                )}
+                                                            </div>
+
+                                                            <div className='flex space-x-3'>
+                                                                <button onClick={handleAddressSubmit} className='nc-Button button  relative h-auto inline-flex items-center justify-center rounded-full transition-colors text-sm sm:text-base font-medium py-3 px-4 sm:py-3.5 sm:px-6  ttnc-ButtonPrimary disabled:bg-opacity-90 bg-slate-900  hover:bg-slate-800 text-slate-50  shadow-xl sm:!px-7 shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-6000'>Save Address</button>
                                                             </div>
                                                         </>
-                                                    )}
-                                                </RadioGroup.Option>
-                                            ))}
-                                        </div>
+                                                    </div>
+                                                </Disclosure.Panel>
+                                            </Transition>
+                                        </>
+                                    )}
 
-                                    </RadioGroup>
-                                </div>
+                                </Disclosure>
                             </div>
-                            <Disclosure defaultOpen={false}>
-                                {({ open }) => (
-                                    <>
-                                        <Disclosure.Button className="flex  items-center justify-between w-full px-4 py-2 font-medium text-left bg-slate-100/80 hover:bg-slate-200/60   rounded-lg focus:outline-none focus-visible:ring focus-visible:ring-slate-500 focus-visible:ring-opacity-75 ">
-                                            <span>Add Shipping Address</span>
-                                            {open ? <AiOutlineMinus /> : <AiOutlinePlus />}
-                                        </Disclosure.Button>
-                                        <Transition
-                                            enter="transition duration-100 ease-out"
-                                            enterFrom="transform scale-95 opacity-0"
-                                            enterTo="transform scale-100 opacity-100"
-                                            leave="transition duration-75 ease-out"
-                                            leaveFrom="transform scale-100 opacity-100"
-                                            leaveTo="transform scale-95 opacity-0"
-                                        >
-                                            <Disclosure.Panel className="p-4 pt-3 border border-slate-200 last:pb-0 text-slate-600 text-sm leading-6">
-                                                <div className=' px-6 py-7 space-y-4 sm:space-y-6 block'>
 
-                                                    <>
-                                                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-3'>
-                                                            <div>
-                                                                <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>Full Name *</label>
-                                                                <input id='fullname' type='text' name="fullname" onChange={getData} className='block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white   disabled:bg-neutral-200  rounded-2xl text-sm font-normal h-11 px-4 py-3 mt-1.5' />
-                                                            </div>
-                                                            <div className='space-y-2'>
-                                                                <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>Phone *</label>
-                                                                <input id='phone' type='text' name="phone" onChange={getData} className='block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white   disabled:bg-neutral-200  rounded-2xl text-sm font-normal h-11 px-4 py-3 mt-1.5' />
-
-                                                            </div>
-                                                        </div>
-                                                        <div className='sm:flex space-y-4 sm:space-y-0 sm:space-x-3'>
-                                                            <div className='flex-1'>
-                                                                <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>Building name / flat no.</label>
-                                                                <input id='add1' type='text' name="add1" onChange={getData} className='block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white   disabled:bg-neutral-200  rounded-2xl text-sm font-normal h-11 px-4 py-3 mt-1.5' />
-                                                            </div>
-                                                            <div className='sm:w-1/3'>
-                                                                <label className="nc-Label text-base font-medium text-neutral-900 text-sm">Landmark</label>
-                                                                <input id='landmark' type='text' name="landmark" onChange={getData} className='block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white   disabled:bg-neutral-200  rounded-2xl text-sm font-normal h-11 px-4 py-3 mt-1.5' />
-                                                            </div>
-                                                        </div>
-
-                                                        <div className='grid grid-cols-1 gap-4 sm:gap-3'>
-                                                            <div>
-                                                                <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>Area *</label>
-                                                                <input id='area' type='text' name="area" onChange={getData} className='block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white   disabled:bg-neutral-200  rounded-2xl text-sm font-normal h-11 px-4 py-3 mt-1.5' />
-                                                            </div>
-                                                        </div>
-
-                                                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-3'>
-                                                            <div>
-                                                                <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>City *</label>
-                                                                <input id='city' type='text' name="city" onChange={getData} className='block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white   disabled:bg-neutral-200  rounded-2xl text-sm font-normal h-11 px-4 py-3 mt-1.5' />
-                                                            </div>
-                                                            <div>
-                                                                <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>State *</label>
-                                                                <input id='state' type='text' name="state" onChange={getData} className='block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white   disabled:bg-neutral-200  rounded-2xl text-sm font-normal h-11 px-4 py-3 mt-1.5' />
-                                                            </div>
-                                                        </div>
-
-                                                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-3'>
-                                                            <div>
-                                                                <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>Pincode *</label>
-                                                                <input id='zipcode' type='text' name="zipcode" onChange={getData} className='block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white   disabled:bg-neutral-200  rounded-2xl text-sm font-normal h-11 px-4 py-3 mt-1.5' />
-                                                            </div>
-                                                            <div>
-                                                                <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>Country *</label>
-                                                                <select name="country" onChange={getData} className='nc-Select h-11 mt-1.5 block w-full text-sm rounded-2xl border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white'>
-                                                                    <option>Select</option>
-                                                                    <option value='India'>India</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-
-                                                        <div>
-                                                            <label className='nc-Label text-base font-medium text-neutral-900 text-sm'>Address type</label>
-                                                            <div className='mt-1.5 grid grid-cols-3 sm:grid-cols-3 gap-2 sm:gap-3'>
-                                                                <div className='flex items-center text-sm sm:text-base '>
-                                                                    <input id="Address-type-home" name="add_type" value='home' type="radio" onChange={getData} className={`focus:ring-action-primary text-primary-500 rounded-full border-slate-400 hover:border-slate-700 bg-transparent focus:ring-primary-500 w-6 h-6 `} />
-                                                                    <label htmlFor='Address-type-home' className='pl-2.5 sm:pl-3 block text-slate-900 select-none'>
-                                                                        <span className='text-sm font-medium'>Home</span>
-                                                                    </label>
-                                                                </div>
-                                                                <div className='flex items-center text-sm sm:text-base '>
-                                                                    <input id="Address-type-office" name="add_type" value='office' type="radio" onChange={getData} className={`focus:ring-action-primary text-primary-500 rounded-full border-slate-400 hover:border-slate-700 bg-transparent focus:ring-primary-500 w-6 h-6 `} />
-                                                                    <label htmlFor='Address-type-office' className='pl-2.5 sm:pl-3 block text-slate-900 select-none'>
-                                                                        <span className='text-sm font-medium'>Office</span>
-                                                                    </label>
-                                                                </div>
-                                                                <div className='flex items-center text-sm sm:text-base '>
-                                                                    <input id="Address-type-other" name="add_type" value='other' type="radio" onChange={getData} className='focus:ring-action-primary text-primary-500 rounded-full border-slate-400 hover:border-slate-700 bg-transparent focus:ring-primary-500 w-6 h-6' />
-                                                                    <label htmlFor="Address-type-other" className='pl-2.5 sm:pl-3 block text-slate-900 select-none'>
-                                                                        <span className='text-sm font-medium'>Others</span>
-                                                                    </label>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className='flex space-x-3'>
-                                                            <button onClick={handleAddressSubmit} className='nc-Button  relative h-auto inline-flex items-center justify-center rounded-full transition-colors text-sm sm:text-base font-medium py-3 px-4 sm:py-3.5 sm:px-6  ttnc-ButtonPrimary disabled:bg-opacity-90 bg-slate-900  hover:bg-slate-800 text-slate-50  shadow-xl sm:!px-7 shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-6000'>Save Address</button>
-                                                        </div>
-                                                    </>
-                                                </div>
-                                            </Disclosure.Panel>
-                                        </Transition>
-                                    </>
-                                )}
-
-                            </Disclosure>
-                        </div>
+                        </>
                     }
 
                     {/* Left side Ends */}
@@ -857,7 +894,7 @@ const Page = () => {
 
                     {/* Right side starts */}
                     <div className='w-full lg:w-[36%] '>
-                        <div className='w-full '>
+                        <div className='w-full sticky top-[100px]'>
                             <div>
                                 {cartData && cartData.length > 0 ?
                                     <Disclosure defaultOpen="true">
@@ -881,7 +918,7 @@ const Page = () => {
                                                                 <div className='relative h-[70px] w-[50px] sm:w-32 flex-shrink-0 overflow-hidden rounded-xl bg-slate-100'>
 
                                                                     <Image src={cart.images[0]?.image_url ? `${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${cart.images[0]?.image_url}` : '/images/logo.png'} fill className='h-full w-full object-contain object-center' alt='subhame' />
-                                                                    <Link href='#' className='absolute inset-0'></Link>
+                                                                    <Link href={`/details/${cart.product?.id}`} className='absolute inset-0'></Link>
                                                                 </div>
 
                                                                 <div className='ml-3 sm:ml-6 flex flex-1 flex-col'>
@@ -889,7 +926,7 @@ const Page = () => {
                                                                         <div className='flex justify-between '>
                                                                             <div className='flex-[1.5] '>
                                                                                 <h3 className='text-base font-semibold'>
-                                                                                    <Link href="#" className='text-[12px]'>{cart.product?.product_name}</Link>
+                                                                                    <Link href={`/details/${cart.product?.id}`} className='text-[12px]'>{cart.product?.product_name}</Link>
                                                                                 </h3>
                                                                             </div>
                                                                             <div className='hidden flex-1 sm:flex justify-end'>
@@ -991,9 +1028,23 @@ const Page = () => {
                                     ))}
                                 </div>
 
-                                <div className='mt-4 flex justify-between py-2.5'>
+                                {/* <div className='mt-4 flex justify-between py-2.5'>
                                     <span>Subtotal</span>
                                     <span className='font-semibold text-slate-900'>₹{(totalPrice).toFixed(2)}</span>
+                                </div> */}
+                                <div className='flex flex-col justify-between py-4'>
+                                    <div className='flex justify-between '>
+                                        <span>Subtotal</span>
+                                        <span className='font-semibold text-slate-900'>₹{(totalPrice).toFixed(2)}</span>
+                                    </div>
+                                    <div className='flex justify-between py-4'>
+                                        <span className='font-semibold text-[12px]'>Price breakup:</span>
+                                        <div className='flex justify-between flex-col'>
+                                            <span className='flex justify-between text-slate-500 font-semibold text-[12px] gap-2'>Base Fare: <span>₹{(totalPrice / (1 + calculateGST(cartData) / 100)).toFixed(2)}</span></span>
+                                            <span>+</span>
+                                            <span className='flex justify-between text-slate-500 font-semibold text-[12px] gap-2'>Tax: <span>{calculateGST(cartData)}%</span></span>
+                                        </div>
+                                    </div>
                                 </div>
                                 {appliedCoupon && (
                                     <div className='mt-4 flex justify-between py-2.5'>
@@ -1002,15 +1053,15 @@ const Page = () => {
                                     </div>
                                 )}
 
-                                <div className='mt-4 flex justify-between py-2.5'>
+                                {/* <div className='mt-4 flex justify-between py-2.5'>
                                     <span>Tax</span>
                                     <span className='font-semibold text-slate-900'>{calculateGST(cartData)}%</span>
-                                </div>
+                                </div> */}
 
                                 {shippingCharge > 0 && (
                                     <div className='mt-4 flex items-center justify-between py-2.5'>
                                         <span>Shipping Charge</span>
-                                        <span className='flex flex-col text-end font-semibold text-slate-900'>₹{shippingCharge} <span className='text-[10px] text-green-500'>delivery with in 3 days</span></span>
+                                        <span className='flex flex-col text-end font-semibold text-slate-900'>₹{shippingCharge} <span className='text-[10px] text-green-500'>Delivery with in {shippingData?.estimate_del_in_days} days, {shippingData?.city}</span></span>
                                     </div>
                                 )}
                                 {shippingCharge == 0 && shippingOption == 2 && (
@@ -1026,7 +1077,7 @@ const Page = () => {
                                     <span>₹{formattedTotalAmount}</span>
                                 </div>
                             </div>
-                            <button onClick={placeOrder} className={`nc-Button relative h-auto inline-flex items-center justify-center rounded-full transition-colors text-sm sm:text-base font-medium py-3 px-4 sm:py-3.5 sm:px-6  ttnc-ButtonPrimary disabled:bg-opacity-90 bg-slate-900 hover:bg-slate-800 text-slate-50 shadow-xl mt-8 w-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-6000 `}>
+                            <button onClick={placeOrder} className={`nc-Button button relative h-auto inline-flex items-center justify-center rounded-full transition-colors text-sm sm:text-base font-medium py-3 px-4 sm:py-3.5 sm:px-6  ttnc-ButtonPrimary disabled:bg-opacity-90 bg-slate-900 hover:bg-slate-800 text-slate-50 shadow-xl mt-8 w-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-6000 `}>
                                 Confirm Order
                             </button>
                         </div>

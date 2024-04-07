@@ -265,7 +265,7 @@ const Page = ({ params }) => {
 
 
             <div className="container mx-auto">
-            <span className="text-[24px] text-[#222] font-[700]">You Choose</span>
+            <span className="text-[24px] text-[#222] font-[700]">You Chose</span>
                 <Breadcrumbs aria-label="breadcrumb">
                     <StyledBreadcrumb component="a" href="#" label={paginatedRows[0]?.car_brand?.brand_name} />
                     <StyledBreadcrumb component="a" href="#" label={paginatedRows[0]?.car_model?.model_name} />
