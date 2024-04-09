@@ -86,19 +86,19 @@ const Stories = () => {
                                     {storyData.map((story, index) => (
                                         <SwiperSlide key={index}>
                                             <div className="item">
-                                                <div className="item-box">
+                                                <div className="item-box ">
                                                     {story.story_type === 'image' ? (
-                                                        <div className="thumbnail tmb">
-                                                            <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${story.image_url}`} title={story.story_heading} alt={story.story_heading} />
+                                                        <div className="thumbnail tmb !rounded-[18px]">
+                                                            <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${story.image_url}`} title={story.story_heading} alt={story.story_heading}/>
                                                         </div>
                                                     ) : (
-                                                        <div className="thumbnail tmb">
-                                                            <video src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${story.image_url}`} title={story.story_heading} className='w-full h-full'></video>
+                                                        <div className="thumbnail tmb !rounded-[18px]">
+                                                            <video src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${story.image_url}`} title={story.story_heading} className='w-full h-full object-cover'></video>
                                                         </div>
                                                     )}
                                                     <div className="item-box-dec">
                                                         <div className="homeStoryDescription text-[14px]">{story.description.slice(0, 50)}...</div>
-                                                        <Link href="#" className='btn-link'>Read More</Link>
+                                                        <Link href={`/stories/${story.story_type}/${story.id}/${story.heading}`} className='btn-link'>Read More</Link>
                                                         {/* {story.upload_type === 1 && (
                                                     <a className="btn btn-link" href={`./stories/customer_story/${story.id}/${story.story_heading}`}>
                                                         <i className="fa fa-angle-right"></i> Read more
