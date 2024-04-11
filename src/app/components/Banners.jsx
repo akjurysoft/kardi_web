@@ -1,31 +1,78 @@
-import React, { useRef } from 'react'
+import { useRouter } from 'next/navigation';
+import axios from '../../../axios';
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
+import Image from 'next/image';
 
 const Banners = () => {
-  return (
-   <>
-     <Carousel 
-            autoPlay={true} 
-            infiniteLoop={true} 
-            interval={5000} 
-            showArrows={false} 
-            showStatus={false} 
-            showIndicators={true} 
-            showThumbs={false}
-            swipeable={true}
-            emulateTouch={true}
-            stopOnHover={false}
-        >
-            <div>
-                <img src="/images/banner1.jpg" alt="Banner 1" />
-            </div>
-            <div>
-                <img src="/images/banner2.jpg" alt="Banner 2" />
-            </div>
-        </Carousel>
-   </>
-  )
+    const router = useRouter();
+
+    const [bannerData, setBannerData] = useState([])
+    useEffect(() => {
+        let unmounted = false;
+        if (!unmounted) {
+            fetchBannerData()
+        }
+
+        return () => { unmounted = true };
+    }, [])
+
+    const fetchBannerData = useCallback(
+        () => {
+            axios.get(`/api/get-banners-customer`)
+                .then((res) => {
+                    if (res.data.code == 200) {
+                        setBannerData(res.data.banners)
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                    if (err.response && err.response.data.statusCode === 400) {
+                        openSnackbar(err.response.data.message, 'error');
+                    }
+                })
+        },
+        [],
+    )
+
+    
+
+    const handleClick = (banner) => {
+        let href = '';
+
+        if (banner.banner_type === 'category') {
+            href += `/product/category_id=${banner.category_id}`;
+            if (banner.sub_category_id) {
+                href += `&sub_category_id=${banner.sub_category_id}`;
+            } if(banner.super_sub_category_id) {
+                href += `&super_sub_category_id=${banner.super_sub_category_id}`;
+            }
+        } if(banner.banner_type === 'product') {
+            href += `/banner-products/${banner.id}/${banner.banner_name}`;
+        }
+
+        router.push(href);
+    };
+    return (
+        <>
+            <Carousel
+                autoPlay={true}
+                infiniteLoop={true}
+                interval={5000}
+                autoFocus={false}
+                showArrows={true}
+                showIndicators={true}
+                showThumbs={false}
+            >
+                {bannerData && bannerData.map((banner, index) => (
+                    <div key={index} onClick={() => handleClick(banner)} className='cursor-pointer'>
+                        <Image src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${banner.web_image_url}`} alt={banner.banner_name} height={500} width={1920}/>
+                    </div>
+                ))}
+            </Carousel>
+        </>
+    )
 }
 
 export default Banners

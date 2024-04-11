@@ -1,7 +1,7 @@
 'use client'
 import { Breadcrumbs, CircularProgress, Pagination, Rating } from '@mui/material'
 import { Navigation, Scrollbar, A11y, Autoplay } from 'swiper/modules';
-import axios from '../../../../axios'
+import axios from '../../../../../axios'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import Footer from '@/app/components/Footer'
 import Navbar1 from '@/app/components/Navbar'
@@ -15,57 +15,37 @@ import { useSnackbar } from '@/app/SnackbarProvider'
 import { CartContext } from '@/app/context/CartContext';
 
 const Page = ({ params }) => {
-    const discount_id = params.slug
-
+    console.log(params)
     const [cartCounter, setCartCounter] = useContext(CartContext)
+
+    const banner_id = params.banner_id
+    const banner_name = decodeURIComponent(params.banner_name)
+
     const { openSnackbar } = useSnackbar();
     const router = useRouter()
 
-    const [offerData, setOfferDate] = useState([])
-    const [products, setProducts] = useState([])
+
     const [loading, setLoading] = useState(true);
+    const [bannerProductData, setBannerProductData] = useState([])
+
+
     useEffect(() => {
         let unmounted = false;
         if (!unmounted) {
-            fetchOfferData()
+            fetchBannerProductData()
         }
 
         return () => { unmounted = true };
     }, [])
 
-    const fetchOfferData = useCallback(
+    const fetchBannerProductData = useCallback(
         () => {
-            axios.get(`/api/get-all-discounts-like-offer?discount_id=${discount_id}`)
+            axios.get(`/api/get-banners-customer?banner_id=${banner_id}`)
                 .then((res) => {
                     if (res.data.code == 200) {
-                        setOfferDate(res.data.discounts)
-
-                        if (res.data.discounts[0]?.product_discount_associations && res.data.discounts[0]?.product_discount_associations.length > 0) {
-                            const productsData = res.data.discounts[0]?.product_discount_associations && res.data.discounts[0]?.product_discount_associations.map(item => item.product);
-                            setProducts(productsData);
-                        } else {
-                            let queryParams = '';
-
-                            if (res.data.discounts[0]?.product_brand_id) {
-                                queryParams += `product_brand_id=${res.data.discounts[0]?.product_brand_id}&`;
-                            }
-                            if (res.data.discounts[0]?.category_id) {
-                                queryParams += `category_id=${res.data.discounts[0]?.category_id}&`;
-                            }
-                            if (res.data.discounts[0]?.subcategory) {
-                                queryParams += `sub_category_id=${res.data.discounts[0]?.subcategory}&`;
-                            }
-                            if (res.data.discounts[0]?.superSubcategory) {
-                                queryParams += `super_sub_category_id=${res.data.discounts[0]?.superSubcategory}&`;
-                            }
-                            axios.get(`/api/get-products-customer?${queryParams}`)
-                                .then((res) => {
-                                    setProducts(res.data.products);
-                                })
-                                .catch((err) => {
-                                    console.log(err);
-                                });
-                        }
+                        setBannerProductData(res.data.banners[0].banner_product_associations)
+                    }else{
+                        openSnackbar(res.data.message, 'error')
                     }
                 })
                 .catch(err => {
@@ -79,7 +59,7 @@ const Page = ({ params }) => {
 
     const [page, setPage] = useState(1);
     const rowsPerPage = 10;
-    const totalRows = products.length;
+    const totalRows = bannerProductData.length;
     const totalPages = Math.ceil(totalRows / rowsPerPage);
 
     const handleChangePage = (event, newPage) => {
@@ -88,8 +68,8 @@ const Page = ({ params }) => {
 
     const [searchQuery, setSearchQuery] = useState("");
 
-    const filteredRows = products.filter((e) =>
-        e.product_name.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredRows = bannerProductData.filter((e) =>
+        e.product.product_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const startIndex = (page - 1) * rowsPerPage;
@@ -97,14 +77,28 @@ const Page = ({ params }) => {
     const paginatedRows = filteredRows.slice(startIndex, endIndex);
 
 
+    // const convertInRupee = (number) => {
+    //     return number.toLocaleString('en-IN', {
+    //         style: 'currency',
+    //         currency: 'INR',
+    //         minimumFractionDigits: 2,
+    //         maximumFractionDigits: 2
+    //     });
+    // }
+
     const convertInRupee = (number) => {
-        return number.toLocaleString('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-    }
+        if (typeof number !== 'undefined') {
+            return number.toLocaleString('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        } else {
+            // Handle undefined value gracefully
+            return 'N/A';
+        }
+    };
 
 
     // cart Logic
@@ -252,7 +246,7 @@ const Page = ({ params }) => {
                         href='#'
                         aria-current="page"
                     >
-                        {offerData[0]?.discount_name}
+                        {banner_name}
                     </Link>
                 </Breadcrumbs>
             </div>
@@ -266,7 +260,7 @@ const Page = ({ params }) => {
             <div className="container mx-auto">
                 <div className="py-[50px]">
                     <ul className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
-                        {paginatedRows.length > 0 ?
+                        {paginatedRows && paginatedRows.length > 0 ?
                             <>
                                 {paginatedRows.map((product, index) => (
                                     <li key={index} className="p-[10px] bg-[#FAF6F6] z-[0]">
@@ -283,7 +277,7 @@ const Page = ({ params }) => {
                                                     loop={false}
                                                     className="h-full"
                                                 >
-                                                    {product.images.map((image, imageIndex) => (
+                                                    {product.product.images?.map((image, imageIndex) => (
                                                         <SwiperSlide key={imageIndex}>
                                                             <div className="aspect-w-11 aspect-h-12 w-full h-full">
                                                                 <Link href={`/details/${image.product_id}`}>
@@ -303,54 +297,54 @@ const Page = ({ params }) => {
                                                     <p className="w-5 h-5">
                                                         <AiFillHeart
                                                             onClick={() => {
-                                                                if (isProductInWishlist(product.id)) {
-                                                                    removeFromWish(product);
+                                                                if (isProductInWishlist(product.product.id)) {
+                                                                    removeFromWish(product.product);
                                                                 } else {
-                                                                    addToWish(product);
+                                                                    addToWish(product.product);
                                                                 }
                                                             }}
-                                                            color={isProductInWishlist(product.id) ? '#E3BB54' : 'black'}
+                                                            color={isProductInWishlist(product.product.id) ? '#E3BB54' : 'black'}
                                                         />
                                                     </p>
                                                 </button>
 
                                                 <span className="w-[50px] h-[50px] flex items-center justify-center rounded-full bg-[#E3BB54]  text-neutral-700  nc-shadow-lg absolute top-3 right-3 z-10">
-                                                    {product.discount_type === "amount" ? (
-                                                        <p className="w-[40px] text-[12px] font-[600] text-center">₹{(product.discount)} <span className="text-[10px] font-[500] text-[#404040]">off</span></p>
+                                                    {product.product.discount_type === "amount" ? (
+                                                        <p className="w-[40px] text-[12px] font-[600] text-center">₹{(product.product.discount)} <span className="text-[10px] font-[500] text-[#404040]">off</span></p>
                                                     ) : (
-                                                        <p className="w-[40px] text-[12px] font-[600] text-center">{product.discount}% <span className="text-[10px] font-[500] text-[#404040]">off</span></p>
+                                                        <p className="w-[40px] text-[12px] font-[600] text-center">{product.product.discount}% <span className="text-[10px] font-[500] text-[#404040]">off</span></p>
                                                     )}
                                                 </span>
                                             </div>
                                             <div className="space-y-4 px-2.5 pt-5 pb-2.5">
                                                 <div className="text-center">
-                                                    <Link href="#" className='font-[500] text-[16px] text-center'>{product.product_name}</Link>
+                                                    <Link href="#" className='font-[500] text-[16px] text-center'>{product.product.product_name}</Link>
                                                 </div>
                                                 <div className="flex justify-center">
-                                                    <Rating name="read-only" value={product.rating} readOnly />
+                                                    <Rating name="read-only" value={product.product.rating} readOnly />
                                                 </div>
                                                 <div className="flex justify-center items-baseline gap-1">
-                                                    {product.discount_type === "amount" ? (
+                                                    {product.product.discount_type === "amount" ? (
                                                         <>
                                                             <span className="text-black font-[500] text-[20px]">
-                                                                {convertInRupee(product.default_price - product.discount)}
+                                                                {convertInRupee(product.product.default_price - product.product.discount)}
                                                             </span>
                                                             <span className="text-[#bbb8b8] font-[500] text-[13px] line-through">
-                                                                {convertInRupee(product.default_price)}
+                                                                {convertInRupee(product.product.default_price)}
                                                             </span>
                                                         </>
                                                     ) : (
                                                         <>
                                                             <span className="text-black font-[500] text-[20px]">
-                                                                {convertInRupee(product.default_price * (1 - product.discount / 100))}
+                                                                {convertInRupee(product.product.default_price * (1 - product.product.discount / 100))}
                                                             </span>
                                                             <span className="text-[#bbb8b8] font-[500] text-[13px] line-through">
-                                                                {convertInRupee(product.default_price)}
+                                                                {convertInRupee(product.product.default_price)}
                                                             </span>
                                                         </>
                                                     )}
                                                 </div>
-                                                <div className="flex button items-center space-x-2 justify-center bg-black hover:opacity-80 cursor-pointer py-[12px] px-[15px] text-white rounded-full" onClick={() => addToCart(product)}>
+                                                <div className="flex button items-center space-x-2 justify-center bg-black hover:opacity-80 cursor-pointer py-[12px] px-[15px] text-white rounded-full" onClick={() => addToCart(product.product)}>
                                                     <FaShoppingCart />
                                                     <div className=" bottom-0  space-x-1.5 rtl:space-x-reverse flex justify-center opacity-1" >
                                                         Add to Cart
