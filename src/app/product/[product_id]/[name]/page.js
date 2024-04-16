@@ -1,9 +1,8 @@
 'use client'
 import Navbar from "@/app/components/Navbar";
-import { Box, Breadcrumbs, Chip, LinearProgress, Pagination, Rating, Typography } from "@mui/material";
+import { Box, Breadcrumbs, LinearProgress, Pagination, Rating } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
-import { emphasize, styled } from '@mui/material/styles';
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import {
@@ -21,43 +20,11 @@ import { useSnackbar } from "@/app/SnackbarProvider";
 import { useRouter } from "next/navigation";
 import { CartContext } from "@/app/context/CartContext";
 
-
-const StyledBreadcrumb = styled(Chip)(({ theme }) => {
-    const backgroundColor =
-        theme.palette.mode === 'light'
-            ? theme.palette.grey[100]
-            : theme.palette.grey[800];
-    return {
-        backgroundColor,
-        height: theme.spacing(3),
-        color: theme.palette.text.primary,
-        fontWeight: theme.typography.fontWeightRegular,
-        '&:hover, &:focus': {
-            backgroundColor: emphasize(backgroundColor, 0.06),
-        },
-        '&:active': {
-            boxShadow: theme.shadows[1],
-            backgroundColor: emphasize(backgroundColor, 0.12),
-        },
-    };
-});
-
 const Page = ({ params }) => {
+    console.log(params)
     const [cartCounter, setCartCounter] = useContext(CartContext)
-    const decodedProductId = decodeURIComponent(params.slug);
-    console.log(decodedProductId)
-    const queryParams = decodedProductId.split('&');
-
-    let year = null;
-
-    for (let i = 0; i < queryParams.length; i++) {
-        const paramParts = queryParams[i].split('=');
-        if (paramParts[0] === 'year') {
-            year = paramParts[1];
-            break;
-        }
-    }
-
+    const decodedProductId = decodeURIComponent(params.product_id);
+    const decodedProductName = decodeURIComponent(params.name);
     const { openSnackbar } = useSnackbar();
     const router = useRouter()
 
@@ -76,7 +43,11 @@ const Page = ({ params }) => {
             axios.get(`/api/get-products-customer?${decodedProductId}`)
                 .then((res) => {
                     if (res.data.code == 200) {
-                        setProductData(res.data.products)
+                        if(res.data.products[0].product_type === 'vehicle selection'){
+                            router.push(`/vehicle-selection/${decodedProductId}`)
+                        }else{
+                            setProductData(res.data.products)
+                        }
                     }
                 })
                 .catch(err => {
@@ -120,11 +91,13 @@ const Page = ({ params }) => {
 
 
     const addToCart = (data) => {
-        if (!localStorage.getItem('kardifywebtoken')) {
+        if(!localStorage.getItem('kardifywebtoken')){
             openSnackbar('Login Required', 'error')
+            localStorage.removeItem('kardifyuserid')
             router.push('/login')
             return
         }
+
         axios.post('/api/add-to-cart', {
             product_id: data.id,
             quantity: 1
@@ -137,8 +110,10 @@ const Page = ({ params }) => {
                 if (res.data.status === 'success') {
                     openSnackbar(res.data.message, 'success')
                     setCartCounter(prev => prev + 1)
-                } else {
+                } else if (res.data.message === 'Product is already in the cart') {
                     openSnackbar(res.data.message, 'error')
+                }else {
+                    openSnackbar('Login Required', 'error')
                     localStorage.removeItem('kardifyuserid')
                     router.push('/login')
                 }
@@ -163,6 +138,8 @@ const Page = ({ params }) => {
 
     const fetchWishListData = useCallback(
         () => {
+            if(!localStorage.getItem('kardifywebtoken')) return
+            
             axios.get(`/api/get-all-wishlists`, {
                 headers: {
                     Authorization: localStorage.getItem('kardifywebtoken')
@@ -171,7 +148,7 @@ const Page = ({ params }) => {
                 .then((res) => {
                     if (res.data.code == 200) {
                         setWishListData(res.data.data)
-                    }
+                    } 
                     // else if (res.data.message === 'Session expired') {
                     //     openSnackbar(res.data.message, 'error');
                     //     router.push('/login')
@@ -180,24 +157,21 @@ const Page = ({ params }) => {
                 .catch(err => {
                     console.log(err)
                     if (err.response && err.response.data.statusCode === 400) {
-                        // openSnackbar(err.response.data.message, 'error');
+                        openSnackbar(err.response.data.message, 'error');
                     }
                 })
         },
         [],
     )
 
-    // if(localStorage.getItem('kardifywebtoken') && localStorage.getItem('kardifylogintype') === 'logout') {
-    //     openSnackbar('Login Required', 'error')
-    //     router.push('/login')
-    //     return;
-    // }
     const addToWish = (data) => {
-        if (!localStorage.getItem('kardifywebtoken')) {
+        if(!localStorage.getItem('kardifywebtoken')){
             openSnackbar('Login Required', 'error')
+            localStorage.removeItem('kardifyuserid')
             router.push('/login')
             return
         }
+        
         axios.post('/api/add-to-wishlist', {
             product_id: data.id,
         }, {
@@ -210,7 +184,7 @@ const Page = ({ params }) => {
                     openSnackbar(res.data.message, 'success')
                     fetchWishListData()
                 } else {
-                    openSnackbar('Login Requires', 'error')
+                    openSnackbar('Login Required', 'error')
                     localStorage.removeItem('kardifyuserid')
                     router.push('/login')
                 }
@@ -250,7 +224,7 @@ const Page = ({ params }) => {
             <Navbar />
 
             <div className="container mx-auto py-[20px]">
-                <Breadcrumbs aria-label="breadcrumb">
+                <Breadcrumbs aria-label="breadcrumb" className="text-sm">
                     <Link underline="hover" color="inherit" href="/">
                         Home
                     </Link>
@@ -260,28 +234,12 @@ const Page = ({ params }) => {
                         href='#'
                         aria-current="page"
                     >
-                        {paginatedRows.length > 1 ? 'Shop by car' : paginatedRows[0]?.sub_category?.sub_category_name}
+                        {decodedProductName}
                     </Link>
-                    {paginatedRows[0]?.super_sub_category?.super_sub_category_name &&
-                        <Link
-                            underline="hover"
-                            color="text.primary"
-                            href='#'
-                            aria-current="page"
-                        >
-                            {paginatedRows[0]?.super_sub_category?.super_sub_category_name}
-                        </Link>}
                 </Breadcrumbs>
             </div>
 
-
             <div className="container mx-auto">
-                <span className="text-[24px] text-[#222] font-[700]">You have chosen</span>
-                <Breadcrumbs aria-label="breadcrumb">
-                    <StyledBreadcrumb component="a" href="#" label={paginatedRows[0]?.car_brand?.brand_name} />
-                    <StyledBreadcrumb component="a" href="#" label={paginatedRows[0]?.car_model?.model_name} />
-                    <StyledBreadcrumb label={year} />
-                </Breadcrumbs>
                 <div className="py-[50px]">
                     <ul className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
                         {paginatedRows.length > 0 ?
@@ -367,7 +325,7 @@ const Page = ({ params }) => {
                                                         </>
                                                     )}
                                                 </div>
-                                                <div className="flex items-center space-x-2 justify-center bg-black hover:opacity-80 cursor-pointer py-[12px] px-[15px] text-white rounded-full" onClick={() => addToCart(product)}>
+                                                <div className="flex button items-center space-x-2 justify-center bg-black hover:opacity-80 cursor-pointer py-[12px] px-[15px] text-white rounded-full" onClick={() => addToCart(product)}>
                                                     <FaShoppingCart />
                                                     <div className=" bottom-0  space-x-1.5 rtl:space-x-reverse flex justify-center opacity-1" >
                                                         Add to Cart

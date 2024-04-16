@@ -33,6 +33,7 @@ const Page = () => {
                     openSnackbar(res.data.message, 'success')
                     localStorage.setItem('kardifywebtoken', res.data.token)
                     localStorage.setItem('kardifyuserid', res.data.user_id)
+                    localStorage.setItem('kardifylogintype', 'logedin')
                     router.push('/')
                 } else {
                     openSnackbar(res.data.message, 'error')
