@@ -68,6 +68,7 @@ const Offer = () => {
     // }, []);
     return (
         <>
+        {offerDate && offerDate.length > 0 && (
             <section className="py-[20px]">
                 <div className="container mx-auto">
                     <div className="title text-center mb-[20px]">
@@ -108,6 +109,7 @@ const Offer = () => {
                     </Swiper>
                 </div>
             </section>
+        )}
         </>
     )
 }
