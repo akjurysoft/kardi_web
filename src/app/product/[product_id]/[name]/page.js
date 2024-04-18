@@ -4,6 +4,7 @@ import { Box, Breadcrumbs, LinearProgress, Pagination, Rating } from "@mui/mater
 import Image from "next/image";
 import Link from "next/link";
 import React, { useCallback, useContext, useEffect, useState } from "react";
+import { Navigation, Scrollbar, A11y, Autoplay } from 'swiper/modules';
 import { FaShoppingCart } from "react-icons/fa";
 import {
     AiFillHeart,
@@ -21,7 +22,6 @@ import { useRouter } from "next/navigation";
 import { CartContext } from "@/app/context/CartContext";
 
 const Page = ({ params }) => {
-    console.log(params)
     const [cartCounter, setCartCounter] = useContext(CartContext)
     const decodedProductId = decodeURIComponent(params.product_id);
     const decodedProductName = decodeURIComponent(params.name);
@@ -250,11 +250,13 @@ const Page = ({ params }) => {
                                             <div className="relative flex-shrink-0 bg-slate-50 h-[180px] lg:h-[250px] rounded-3xl overflow-hidden z-0 group">
                                                 <Swiper
                                                     key={index}
+                                                    modules={[Autoplay]}
                                                     spaceBetween={50}
                                                     slidesPerView={1}
                                                     navigation={false}
+                                                    autoplay={{ delay: 3000 }}
                                                     pagination={{ clickable: true }}
-                                                    loop={true}
+                                                    loop={false}
                                                     className="h-full"
                                                 >
                                                     {product.images.map((image, imageIndex) => (

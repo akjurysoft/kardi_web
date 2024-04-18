@@ -17,6 +17,8 @@ import { useSnackbar } from '@/app/SnackbarProvider';
 import { CartContext } from '@/app/context/CartContext';
 
 
+
+
 const Page = ({ params }) => {
     const [cartCounter, setCartCounter] = useContext(CartContext)
     const { openSnackbar } = useSnackbar();
