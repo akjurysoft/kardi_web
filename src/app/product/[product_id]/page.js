@@ -77,6 +77,8 @@ const Page = ({ params }) => {
     const endIndex = Math.min(startIndex + rowsPerPage, filteredRows.length);
     const paginatedRows = filteredRows.slice(startIndex, endIndex);
 
+    console.log(paginatedRows)
+
 
     const convertInRupee = (number) => {
         return number.toLocaleString('en-IN', {

@@ -97,6 +97,7 @@ const Page = ({ params }) => {
     const paginatedRows = filteredRows.slice(startIndex, endIndex);
 
 
+    console.log(paginatedRows)
     const convertInRupee = (number) => {
         return number.toLocaleString('en-IN', {
             style: 'currency',

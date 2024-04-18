@@ -310,6 +310,9 @@ const Navbar1 = () => {
                         <MenuIcon className='text-white' />
                     </IconButton>
 
+
+                    
+
                     <Drawer
                         anchor="left"
                         open={drawerOpen}
@@ -498,6 +501,36 @@ const Navbar1 = () => {
                         </div>
                     </Drawer>
                 </div>
+
+                <div className='w-full block md:hidden lg:hidden py-2'>
+                        <Autocomplete
+                            options={mergedOptions}
+                            getOptionLabel={(option) => option.label}
+                            noOptionsText="No Products Found"
+                            renderOption={(props, option) => (
+                                <Link href={option.link ? option.link : '#'}>
+                                    <div {...props} >
+                                        <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${option.image}`} alt={option.label} style={{ marginRight: '8px', width: '30px', height: '30px' }} />
+                                        <span className='text-[14px] text-gray-700 font-[600]'>{option.label}</span>
+                                    </div>
+                                </Link>
+                            )}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Search"
+                                    className='w-full !text-[14px]'
+                                    variant="outlined"
+                                    fullWidth
+                                    InputProps={{
+                                        ...params.InputProps,
+                                        type: 'search',
+                                        sx: { fontColor: 'red', height: '55px', borderRadius: '10px' }
+                                    }}
+                                />
+                            )}
+                        />
+                    </div>
 
                 <div id="mega-menu" className={`!w-[70%] items-center justify-between w-full md:flex gap-8 md:w-auto md:order-1  ${dropdownOpen ? 'block' : 'hidden'}`}>
                     <ul className="flex flex-col items-center mt-4 font-medium md:flex-row md:mt-0 md:space-x-8 rtl:space-x-reverse">
