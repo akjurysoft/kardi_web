@@ -10,6 +10,7 @@ import axios from '../../../axios';
 import { useSnackbar } from '../SnackbarProvider';
 import { Rating } from '@mui/material';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const TopCategories = () => {
     const { openSnackbar } = useSnackbar();
@@ -99,7 +100,7 @@ const TopCategories = () => {
                                 <SwiperSlide key={index}>
                                     <Link href={!item.category_name ? `/product/sub_category_id=${item.id}` : `/product/category_id=${item.id}`}>
                                         <div className="py-[20px] flex flex-col items-center">
-                                            {item.image_url && <img src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${item.image_url}`} alt="image" className='rounded-[18px]  h-[50px] object-cover md:h-[70px] lg:h-[70px]' />}
+                                            {item.image_url && <Image src={`${process.env.NEXT_PUBLIC_BASE_IMAGE_URL}${item.image_url}`} width={80} height={70} alt="image" className='rounded-[18px]  h-[50px] object-cover md:h-[70px] lg:h-[70px]' />}
                                             <div className="text-center py-3 capitalize">
                                                 <h3 className="font-[500] text-[#000]">{item.category_name && item.category_name}</h3>
                                                 <h3 className="font-[500] text-[#000]">{item.sub_category_name && item.sub_category_name}</h3>

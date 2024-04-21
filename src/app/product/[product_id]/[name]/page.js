@@ -43,9 +43,9 @@ const Page = ({ params }) => {
             axios.get(`/api/get-products-customer?${decodedProductId}`)
                 .then((res) => {
                     if (res.data.code == 200) {
-                        if(res.data.products[0].product_type === 'vehicle selection'){
+                        if (res.data.products[0].product_type === 'vehicle selection') {
                             router.push(`/vehicle-selection/${decodedProductId}`)
-                        }else{
+                        } else {
                             setProductData(res.data.products)
                         }
                     }
@@ -91,7 +91,7 @@ const Page = ({ params }) => {
 
 
     const addToCart = (data) => {
-        if(!localStorage.getItem('kardifywebtoken')){
+        if (!localStorage.getItem('kardifywebtoken')) {
             openSnackbar('Login Required', 'error')
             localStorage.removeItem('kardifyuserid')
             router.push('/login')
@@ -112,7 +112,7 @@ const Page = ({ params }) => {
                     setCartCounter(prev => prev + 1)
                 } else if (res.data.message === 'Product is already in the cart') {
                     openSnackbar(res.data.message, 'error')
-                }else {
+                } else {
                     openSnackbar('Login Required', 'error')
                     localStorage.removeItem('kardifyuserid')
                     router.push('/login')
@@ -138,8 +138,8 @@ const Page = ({ params }) => {
 
     const fetchWishListData = useCallback(
         () => {
-            if(!localStorage.getItem('kardifywebtoken')) return
-            
+            if (!localStorage.getItem('kardifywebtoken')) return
+
             axios.get(`/api/get-all-wishlists`, {
                 headers: {
                     Authorization: localStorage.getItem('kardifywebtoken')
@@ -148,7 +148,7 @@ const Page = ({ params }) => {
                 .then((res) => {
                     if (res.data.code == 200) {
                         setWishListData(res.data.data)
-                    } 
+                    }
                     // else if (res.data.message === 'Session expired') {
                     //     openSnackbar(res.data.message, 'error');
                     //     router.push('/login')
@@ -165,13 +165,13 @@ const Page = ({ params }) => {
     )
 
     const addToWish = (data) => {
-        if(!localStorage.getItem('kardifywebtoken')){
+        if (!localStorage.getItem('kardifywebtoken')) {
             openSnackbar('Login Required', 'error')
             localStorage.removeItem('kardifyuserid')
             router.push('/login')
             return
         }
-        
+
         axios.post('/api/add-to-wishlist', {
             product_id: data.id,
         }, {
@@ -338,7 +338,8 @@ const Page = ({ params }) => {
                                     </li>
                                 ))}
                             </>
-                            : <p>No Products Found</p>}
+                            : <p>No Products Found</p>
+                        }
                     </ul>
                     {totalPages > 1 && (
                         <div className="flex justify-left mt-3">
