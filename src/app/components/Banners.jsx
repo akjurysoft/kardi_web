@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import Image from 'next/image';
+import Script from 'next/script';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import Link from 'next/link'
@@ -86,6 +87,9 @@ const Banners = () => {
     };
     return (
         <>
+         {/* hompage stories using plugin */}
+         <div className="render_lively_story_plugin" brand_id="a0ebd986a8" flow="others" placement="home"></div>
+            <Script src="https://feed.lively.li/stories/bundle.js"/>
             {/* <Carousel
                 autoPlay={true}
                 infiniteLoop={true}
