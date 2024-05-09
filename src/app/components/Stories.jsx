@@ -7,6 +7,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/swiper-bundle.css';
 import axios from '../../../axios';
+import Script from 'next/script';
 
 SwiperCore.use([Navigation, Pagination]);
 const Stories = () => {
@@ -69,6 +70,9 @@ const Stories = () => {
     }, []);
     return (
         <>
+        
+        {/* <div className="render_lively_html_content" brand_id="a0ebd986a8" flow="h0kl3" pip="2"></div>  */}
+
             <section className="py-20 bg-black">
                 <div className="container mx-auto">
                     <div className="title stories-title text-center flex flex-col items-center space-y-[20px]">
@@ -78,6 +82,11 @@ const Stories = () => {
                             View Stories
                         </Link>
                     </div>
+                    {/* carousel video part of stories */}
+                    
+                    <div className="render_lively_html_content" brand_id="a0ebd986a8" flow ="h0kl3" wid_id="8920470adc"   style={{zIndex: 1000}}></div>
+                     <Script src="https://feed.lively.li/shoppableFeedsV3.min.js"/>
+
 
                     <div className="swiper-container py-[80px]">
                         <div className="swiper-wrapper">
