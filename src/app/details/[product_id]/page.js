@@ -52,6 +52,7 @@ const Page = ({ params }) => {
     axios
       .get(`/api/get-products-customer?product_id=${params.product_id}`)
       .then((res) => {
+        console.log('res', res);
         const fetchedProdData = res.data.products[0];
         if (res.data.code == 200) {
           setProductData(res.data.products[0]);
@@ -74,6 +75,8 @@ const Page = ({ params }) => {
         }
       });
   }, []);
+
+  console.log(productData);
 
   const galleryOptions = {
     showFullscreenButton: false,

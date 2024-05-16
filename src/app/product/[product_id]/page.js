@@ -299,7 +299,7 @@ const Page = ({ params }) => {
                                             </div>
                                             <div className="space-y-4 px-2.5 pt-5 pb-2.5">
                                                 <div className="text-center">
-                                                    <Link href="#" className='font-[500] text-[16px] text-center'>{product.product_name}</Link>
+                                                    <Link href={`/details/${product.id}`} className='font-[500] text-[16px] text-center'>{product.product_name}</Link>
                                                 </div>
                                                 <div className="flex justify-center">
                                                     <Rating name="read-only" value={product.rating} readOnly />
