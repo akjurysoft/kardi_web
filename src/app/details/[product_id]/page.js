@@ -36,17 +36,58 @@ const Page = ({ params }) => {
 
   const [productData, setProductData] = useState({});
   const [prodImages, setProdImage] = useState([]);
+  const [attributeCombination, setAttributeCombination] = useState(null);
+  const [attributes, setAttributes] = useState([]);
+  const [attributesCombinations, setAttributesCombinations] = useState([]);
+  const [combinationData, setCombinationData] = useState({
+    price: "",
+    stock: "",
+  });
 
   useEffect(() => {
     let unmounted = false;
     if (!unmounted) {
       fetchbankData();
+      fetchAttributesCombinations();
     }
 
     return () => {
       unmounted = true;
     };
   }, []);
+
+  const handleAttributes = (e) => {
+    const { name, value } = e.target;
+    if (!value) {
+      setAttributeCombination(null);
+    } else {
+      setAttributeCombination(value);
+    }
+  };
+
+  //------------set the price and stock of product based on product--------------------------
+
+  useEffect(() => {
+    const selectedAttribute = attributesCombinations.find(
+      (attribute) => attribute.id == attributeCombination
+    );
+
+    if (selectedAttribute) {
+      const { price, stock } = selectedAttribute;
+
+      setCombinationData((prev) => ({
+        ...prev,
+        price: price,
+        stock: stock,
+      }));
+    } else {
+      setCombinationData((prev) => ({
+        ...prev,
+        price: null, // or some default value
+        stock: null, // or some default value
+      }));
+    }
+  }, [attributeCombination]);
 
   const fetchbankData = useCallback(() => {
     axios
@@ -82,6 +123,32 @@ const Page = ({ params }) => {
     thumbnailPosition: "bottom",
     showNav: false,
   };
+
+  //---------------------------------------Add Attributes Section-------------------------------------------------------
+
+  const fetchAttributesCombinations = useCallback((product_id) => {
+    axios
+      .get(
+        `/api/fetch-all-attributes-combination?product_id=${params.product_id}`
+      )
+      .then((res) => {
+        console.log(res.data);
+
+        if (res.data.code == 200) {
+          let data = res.data.attributeAssociation;
+          setAttributesCombinations(data);
+        } else if (res.data.message === "Session expired") {
+          openSnackbar(res.data.message, "error");
+          router.push("/login");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        if (err.response && err.response.data.statusCode === 400) {
+          router.push("/login");
+        }
+      });
+  }, []);
 
   // ---------------------------- Shiprocket token & pincode setup --------------------------------------------------
   const [shiprocketToken, setShiprocketToken] = useState(null);
@@ -315,9 +382,13 @@ const Page = ({ params }) => {
                       <>
                         <span className="text-black font-[500] text-[20px]">
                           ₹
-                          {(
-                            productData.default_price - productData.discount
-                          ).toFixed(2)}
+                          {combinationData.price
+                            ? (
+                                combinationData.price - productData.discount
+                              ).toFixed(2)
+                            : (
+                                productData.default_price - productData.discount
+                              ).toFixed(2)}
                         </span>
                         <span className="text-[#bbb8b8] font-[500] text-[13px] line-through">
                           ₹{productData.default_price.toFixed(2)}
@@ -327,13 +398,21 @@ const Page = ({ params }) => {
                       <>
                         <span className="text-black font-[500] text-[20px]">
                           ₹
-                          {(
-                            productData.default_price *
-                            (1 - productData.discount / 100)
-                          ).toFixed(2)}
+                          {combinationData.price
+                            ? (
+                                combinationData.price *
+                                (1 - productData.discount / 100)
+                              ).toFixed(2)
+                            : (
+                                productData.default_price *
+                                (1 - productData.discount / 100)
+                              ).toFixed(2)}
                         </span>
                         <span className="text-[#bbb8b8] font-[500] text-[13px] line-through">
-                          ₹{productData.default_price}
+                          ₹
+                          {combinationData.price
+                            ? combinationData.price
+                            : productData.default_price}
                         </span>
                       </>
                     )}
@@ -367,6 +446,32 @@ const Page = ({ params }) => {
 
               <div>
                 {/* <h5><span className='text-sm font-medium'>Avalability: <span className='ml-1 text-md font-semibold text-green-600'>{productData.stock}</span></span> </h5> */}
+                {/* Add here Attribute releated to product------------ */}
+                {productData.product_attributes_association ? (
+                  <div className="flex gap-2 items-center py-2">
+                    <span className="text-sm font-medium">Attributes</span>
+                    <select
+                      className="text-[14px] rounded-sm"
+                      name="attribute_combination"
+                      value={attributeCombination}
+                      onChange={handleAttributes}
+                    >
+                      <option name="attribute_combination" value="">
+                        Choose Variants
+                      </option>
+                      {attributesCombinations.map((item, i) => (
+                        <option value={item.id} key={`${i}`}>
+                          {item.combination}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <div className="text-red-600 font-medium">
+                    Variants Unavailable
+                  </div>
+                )}
+
                 <h5>
                   <span className="text-sm font-medium">
                     Availability:
@@ -377,11 +482,23 @@ const Page = ({ params }) => {
                           : "text-green-600"
                       }`}
                     >
-                      {productData.stock < 1
+                      {combinationData.stock
+                        ? combinationData.stock
+                        : productData.stock < 1
                         ? "Out of Stock"
                         : productData.stock <= 5
                         ? `Only ${productData.stock} items left`
-                        : `In Stock`}
+                        : `In Stock (${productData.stock})`}
+
+                      {/* {combinationData
+                        ? combinationData.stock
+                        : productData.stock < 1
+                        ? "Out of Stock"
+                        : productData.stock <= 5
+                        ? `Only ${productData.stock} items left`
+                        : `In Stock`
+                        ? productData.stock
+                        : null} */}
                     </span>
                   </span>
                 </h5>
