@@ -467,7 +467,9 @@ const Page = ({ params }) => {
                     </select>
                   </div>
                 ) : (
-                  <div>no atttributes</div>
+                  <div className="text-red-600 font-medium">
+                    Variants Unavailable
+                  </div>
                 )}
 
                 <h5>
