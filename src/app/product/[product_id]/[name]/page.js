@@ -78,6 +78,7 @@ const Page = ({ params }) => {
     const startIndex = (page - 1) * rowsPerPage;
     const endIndex = Math.min(startIndex + rowsPerPage, filteredRows.length);
     const paginatedRows = filteredRows.slice(startIndex, endIndex);
+    console.log('paginatedRows', paginatedRows);
 
 
     const convertInRupee = (number) => {
@@ -219,6 +220,8 @@ const Page = ({ params }) => {
         return wishListData.some(item => item.product_id === productId);
     }
 
+
+
     return (
         <>
             <Navbar />
@@ -245,6 +248,7 @@ const Page = ({ params }) => {
                         {paginatedRows.length > 0 ?
                             <>
                                 {paginatedRows.map((product, index) => (
+                                    
                                     <li key={index} className="p-[10px] bg-[#FAF6F6] z-[0]">
                                         <div className="nc-ProductCard relative flex flex-col bg-transparent ">
                                             <div className="relative flex-shrink-0 bg-slate-50 h-[180px] lg:h-[250px] rounded-3xl overflow-hidden z-0 group">
@@ -258,10 +262,10 @@ const Page = ({ params }) => {
                                                     pagination={{ clickable: true }}
                                                     loop={false}
                                                     className="h-full"
-                                                >
+                                                >                                                   
                                                     {product.images.map((image, imageIndex) => (
                                                         <SwiperSlide key={imageIndex}>
-
+                                                        
                                                             <div className="aspect-w-11 aspect-h-12 w-full h-full">
                                                                 <Link href={`/details/${image.product_id}`}>
                                                                     <Image
@@ -300,9 +304,11 @@ const Page = ({ params }) => {
                                                 </span>
                                             </div>
                                             <div className="space-y-4 px-2.5 pt-5 pb-2.5">
+                                            <Link  href={`/details/${product.id}`}>
                                                 <div className="text-center">
-                                                    <Link href="#" className='font-[500] text-[16px] text-center'>{product.product_name}</Link>
+                                                    <span className='font-[500] text-[16px] text-center'>{product.product_name}</span>
                                                 </div>
+                                                </Link>
                                                 <div className="flex justify-center">
                                                     <Rating name="read-only" value={product.rating} readOnly />
                                                 </div>
