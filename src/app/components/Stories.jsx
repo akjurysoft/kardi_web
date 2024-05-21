@@ -84,8 +84,8 @@ const Stories = () => {
                     </div>
                     {/* carousel video part of stories */}
                     
-                    <div className="render_lively_html_content" brand_id="a0ebd986a8" flow ="h0kl3" wid_id="8920470adc"   style={{zIndex: 1000}}></div>
-                     <Script src="https://feed.lively.li/shoppableFeedsV3.min.js"/>
+                    {/* <div className="render_lively_html_content" brand_id="a0ebd986a8" flow ="h0kl3" wid_id="8920470adc"   style={{zIndex: 1000}}></div>
+                     <Script src="https://feed.lively.li/shoppableFeedsV3.min.js"/> */}
 
 
                     <div className="swiper-container py-[80px]">

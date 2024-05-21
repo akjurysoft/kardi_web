@@ -447,7 +447,7 @@ const Page = ({ params }) => {
               <div>
                 {/* <h5><span className='text-sm font-medium'>Avalability: <span className='ml-1 text-md font-semibold text-green-600'>{productData.stock}</span></span> </h5> */}
                 {/* Add here Attribute releated to product------------ */}
-                {productData.product_attributes_association ? (
+                {productData.product_attributes_association && (
                   <div className="flex gap-2 items-center py-2">
                     <span className="text-sm font-medium">Attributes</span>
                     <select
@@ -465,10 +465,6 @@ const Page = ({ params }) => {
                         </option>
                       ))}
                     </select>
-                  </div>
-                ) : (
-                  <div className="text-red-600 font-medium">
-                    Variants Unavailable
                   </div>
                 )}
 
@@ -607,14 +603,14 @@ const Page = ({ params }) => {
                             __html: productData.product_desc,
                           }}
                         ></div>
-
-                        <div
+                        {/* Add stories plugin---------------------- */}
+                        {/* <div
                           className="render_lively_html_content"
                           brand_id="a0ebd986a8"
                           flow="h0kl3"
                           pip="2"
                         ></div>
-                        <Script src="https://feed.lively.li/shoppableFeedsV3.min.js" />
+                        <Script src="https://feed.lively.li/shoppableFeedsV3.min.js" /> */}
                         {/* {productData.product_desc} */}
                       </Disclosure.Panel>
                     </Transition>

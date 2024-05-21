@@ -88,8 +88,8 @@ const Banners = () => {
     return (
         <>
          {/* hompage stories using plugin */}
-         <div className="render_lively_story_plugin" brand_id="a0ebd986a8" flow="others" placement="home"></div>
-            <Script src="https://feed.lively.li/stories/bundle.js"/>
+         {/* <div className="render_lively_story_plugin" brand_id="a0ebd986a8" flow="others" placement="home"></div>
+            <Script src="https://feed.lively.li/stories/bundle.js"/> */}
             {/* <Carousel
                 autoPlay={true}
                 infiniteLoop={true}
